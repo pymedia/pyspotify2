@@ -284,8 +284,7 @@ class Shannon:
 if __name__ == '__main__':
   TESTSIZE= 20
   TEST_KEY= b"test key 128bits"
-  TEST_KEY= b"\x9a\xa2\x8dp\x1f\xc19\xdc+\xcf%\xd1^\xa3'\xdd6\xf8E\xf3!0,\x05]\xa46\x8e\x99{\xba\x95"
-  TEST_PHRASE= b'\xab\x00BR\x1bR\x08xehiyoux\xa0\x01\x00\xf2\x01\x0bGr0m$potify\x92\x03\x1cP\x00\xe0\x03\x00\xd2\x05\npyspotify2\xa2\x06\x07UNKNOWN\xb2\x04\x030.1'
+  TEST_PHRASE= b'\x00' * 20
   
   sh= Shannon( TEST_KEY )
   sh.set_nonce( 0 )
