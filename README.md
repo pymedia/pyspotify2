@@ -12,4 +12,4 @@ Unofficial spotify connect
    git clone https://github.com/google/protobuf  
    <Follow protobuf/python/README.md>  
    
-3. Run python3 spotify.py <username> <password>   
+3. Run python3 spotify.py **username** **password**
