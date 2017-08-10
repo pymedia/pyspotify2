@@ -201,7 +201,7 @@ class Shannon:
   def _decrypt_chunk( self, chunk ):
     result= []
     for c in chunk:
-      result.append( c ^ (self._sbuf >> (32 - self._nbuf)) & 0xFF )
+      result.append( c ^ ((self._sbuf >> (32 - self._nbuf)) & 0xFF ))
       self._mbuf ^= result[ -1 ] << ( 32- self._nbuf ) 
       self._nbuf-= 8
     
@@ -285,6 +285,10 @@ if __name__ == '__main__':
   TESTSIZE= 20
   TEST_KEY= b"test key 128bits"
   TEST_PHRASE= b'\x00' * 20
+  
+  sh= Shannon( bytes( [35, 94, 229, 22, 39, 18, 50, 218, 217, 93, 94, 70, 35, 72, 180, 73, 160, 63, 163, 199, 246, 142, 66, 52, 195, 229, 47, 111, 49, 154, 41, 37] )) 
+  sh.set_nonce( 0 )
+  print( sh.decrypt( bytes( [86, 230, 147] ) ) )
   
   sh= Shannon( TEST_KEY )
   sh.set_nonce( 0 )
