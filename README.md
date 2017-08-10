@@ -1,5 +1,9 @@
 # pyspotify2
-Unofficial spotify connect
+Unofficial spotify connect.  
+Python port from: https://github.com/plietar/librespot  
+pyspotify2 is very limited port. Only supports Auth porting of the protocol. 
+Made for testing purpose only, to check the best way to interact with Spotify. If you want to expand the functionality, feels free to join the effort.
+Have fun !
 
 ## How to run
 1. You will need python35 at least
