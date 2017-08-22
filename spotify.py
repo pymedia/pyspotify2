@@ -22,6 +22,8 @@ if not 1 in diffiehellman.PRIMES:
 try:
   import protocol.impl.keyexchange_pb2 as keyexchange
   import protocol.impl.authentication_pb2 as authentication
+  import protocol.impl.mercury_pb2 as mercury
+  import protocol.impl.metadata_pb2 as metadata
 except:
   raise Exception( "PROTO stubs were not found or have been corrupted. Please regenerate from .proto files using process_proto.py" ) 
 
@@ -37,17 +39,19 @@ AUTH_SUCCESSFUL_COMMAND=  0xAC
 AUTH_DECLINED_COMMAND=    0xAD
 MAC_SIZE=                 4
 
-class CONNECT_TYPE(enum.Enum):
-  CONNECT_TYPE_HANDSHAKE= 1
-  CONNECT_TYPE_STREAM=    2
+TRACK_PATH_TEMPLATE=      'hm://metadata/3/track/%s'
 
 # ----------------------------------- Plain Connection to server ----------------------------------
 class Connection:
+  class CONNECT_TYPE(enum.Enum):
+    CONNECT_TYPE_HANDSHAKE= 1
+    CONNECT_TYPE_STREAM=    2
+
   def __init__( self ):
     self._socket = socket.socket(socket.AF_INET, 
                                 socket.SOCK_STREAM)
     self._socket.connect( SPOTIFY_AP_ADDRESS )
-    self._connect_type= CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE
+    self._connect_type= Connection.CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE
   
   def send_packet( self, 
                    prefix, 
@@ -55,7 +59,7 @@ class Connection:
     if prefix== None:
       prefix= b""
     
-    if self._connect_type== CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE:
+    if self._connect_type== Connection.CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE:
       size=    len( prefix )+ 4+ len( data )
       request= prefix+ struct.pack(">I", size )+ data
     else:
@@ -70,7 +74,7 @@ class Connection:
     return request
 
   def recv_packet( self ):
-    if self._connect_type== CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE:
+    if self._connect_type== Connection.CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE:
       size_packet= self._socket.recv( 4 )
       size= struct.unpack( ">I",  size_packet )
       return '', size[ 0 ], size_packet+ self._socket.recv( size[ 0 ]- 4 )
@@ -86,7 +90,7 @@ class Connection:
       return resp_header[ 0 ], size, resp_body
 
   def handshake_completed( self, send_key, recv_key ):
-    self._connect_type= CONNECT_TYPE.CONNECT_TYPE_STREAM
+    self._connect_type= Connection.CONNECT_TYPE.CONNECT_TYPE_STREAM
     
     # Generate shannon streams
     self._encoder_nonce= 0
@@ -183,10 +187,56 @@ class Session:
     self._local_keys= diffiehellman.DiffieHellman(group=1, key_length=KEY_LENGTH)
     self._local_keys.generate_private_key()
     self._local_keys.generate_public_key()
+
+# ----------------------------------- Mercury related classes ----------------------------------
+class MercuryRequest:
+  
+  class REQUEST_TYPE(enum.Enum):
+    SEND=      1
+    GET =      2
     
+    def __str__(self):
+      return self.name
+      
+    def as_command( self ):
+      if self.name== 'SEND' or \
+         self.name== 'GET':
+        return 0xb2
+
+  def __init__( self, connection ):
+    self._connection= connection
+    self._sequence= 0x0000000000000001
+  
+  def execute( self, request_type, uri ):
+    header= mercury.Header( **{ 'uri':    uri,
+                                'method': str( request_type ) } )
+    buffer= b'\x00\x08'+   \
+            self._sequence.to_bytes( 8, byteorder='big' )+  \
+            b'\x01'+       \
+            b'\x01'+       \
+            struct.pack(">H", len( header.SerializeToString() ) )+ \
+            header.SerializeToString()
+    self._sequence+= 1
+    request= self._connection.send_packet( request_type.as_command(), buffer )   
+    response= self._connection.recv_packet()
+    return response
+    
+# ----------------------------------- Track metadata and stream ----------------------------------
+class Track:
+  def __init__( self, connection, uri ):
+    self._connection= connection
+    self._uri= uri
+    
+  def load( self ):
+    track_data= MercuryRequest(self._connection).execute( MercuryRequest.REQUEST_TYPE.SEND, 
+                                                          TRACK_PATH_TEMPLATE % self._uri )
+    track= metadata.Track()
+    #track.ParseFromString( track_data )
+    print( 'Response code:', hex( track_data[ 0 ] ), ' length:', track_data[ 1 ] )
+
 if __name__ == '__main__':
-  if len( sys.argv )!= 3:
-    print( 'Usage: spotify.py <username> <password>' )
+  if len( sys.argv )!= 4:
+    print( 'Usage: spotify.py <username> <password> <track_uri>' )
   else:
     
     connection = Connection()
@@ -196,3 +246,6 @@ if __name__ == '__main__':
                                           bytes( sys.argv[ 2 ], 'ascii' ), 
                                           authentication.AUTHENTICATION_USER_PASS )
     print( 'AUTH successfull. Token: ', reusable_token )
+    track= Track( connection, sys.argv[ 3 ] )
+    track.load()
+    
