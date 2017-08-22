@@ -38,6 +38,7 @@ LOGIN_REQUEST_COMMAND=    0xAB
 AUTH_SUCCESSFUL_COMMAND=  0xAC
 AUTH_DECLINED_COMMAND=    0xAD
 MAC_SIZE=                 4
+HEADER_SIZE=              3
 
 TRACK_PATH_TEMPLATE=      'hm://metadata/3/track/%s'
 
@@ -82,12 +83,12 @@ class Connection:
       self._decoder.set_nonce( self._decoder_nonce )
       self._decoder_nonce+= 1
 
-      recv_header= self._socket.recv( 3 )
+      recv_header= self._socket.recv( HEADER_SIZE )
       resp_header= self._decoder.decrypt( recv_header )
       size= struct.unpack( ">H", resp_header[ 1: ] )[ 0 ]
-      recv_body= self._socket.recv( size )
+      recv_body= self._socket.recv( size+ MAC_SIZE )
       resp_body= self._decoder.decrypt( recv_body )
-      return resp_header[ 0 ], size, resp_body
+      return resp_header[ 0 ], size, resp_body[ : size ]
 
   def handshake_completed( self, send_key, recv_key ):
     self._connect_type= Connection.CONNECT_TYPE.CONNECT_TYPE_STREAM
@@ -159,6 +160,7 @@ class Session:
     self._sendClientHandshakeChallenge( challenge )
     self._connection.handshake_completed( send_key, 
                                           recv_key )
+    return self                                   
   
   def authenticate( self, username, auth_data, auth_type ):
     auth_request = authentication.ClientResponseEncrypted( **{ 'login_credentials': authentication.LoginCredentials( **{ 'username':      username, 
@@ -205,7 +207,7 @@ class MercuryRequest:
 
   def __init__( self, connection ):
     self._connection= connection
-    self._sequence= 0x0000000000000001
+    self._sequence= 0x0000000000000000
   
   def execute( self, request_type, uri ):
     header= mercury.Header( **{ 'uri':    uri,
@@ -213,11 +215,15 @@ class MercuryRequest:
     buffer= b'\x00\x08'+   \
             self._sequence.to_bytes( 8, byteorder='big' )+  \
             b'\x01'+       \
-            b'\x01'+       \
+            b'\x00\x01\x00'+       \
             struct.pack(">H", len( header.SerializeToString() ) )+ \
             header.SerializeToString()
+    print( buffer )
+
+    buffer= bytes( [0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 35, 10, 28, 104, 109, 58, 47, 47, 114, 101, 109, 111, 116, 101, 47, 51, 47, 117, 115, 101, 114, 47, 120, 101, 104, 105, 121, 111, 117, 120, 47, 26, 3, 83, 85, 66] )        
     self._sequence+= 1
-    request= self._connection.send_packet( request_type.as_command(), buffer )   
+    #request= self._connection.send_packet( request_type.as_command(), buffer )   
+    request= self._connection.send_packet( 0xB3, buffer )   
     response= self._connection.recv_packet()
     return response
     
@@ -240,12 +246,18 @@ if __name__ == '__main__':
   else:
     
     connection = Connection()
-    session= Session()
-    session.connect( connection )
+    session= Session().connect( connection )
     reusable_token= session.authenticate( sys.argv[ 1 ], 
                                           bytes( sys.argv[ 2 ], 'ascii' ), 
                                           authentication.AUTHENTICATION_USER_PASS )
+                                          
     print( 'AUTH successfull. Token: ', reusable_token )
-    track= Track( connection, sys.argv[ 3 ] )
-    track.load()
+    response= connection.recv_packet()
+    print( 'RESP1', response )
+    response= connection.recv_packet()
+    print( 'RESP2', response )
+    response= connection.recv_packet()
+    print( 'RESP3', response )
+    #track= Track( connection, sys.argv[ 3 ] )
+    #track.load()
     
