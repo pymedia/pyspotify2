@@ -143,8 +143,8 @@ class Shannon:
     global INITKONST
     
     if type( nonce )== int:
-      # Accept int as well
-      nonce= bytes( struct.pack( "<I", nonce ))
+      # Accept int as well (BigEndian)
+      nonce= bytes( struct.pack( ">I", nonce ))
       
     self._R= copy.copy( self._initR )
     self._konst = INITKONST
@@ -282,35 +282,39 @@ class Shannon:
     return bytes( result )
 
 if __name__ == '__main__':
-  TESTSIZE= 20
+  TESTSIZE= 23
   TEST_KEY= b"test key 128bits"
   TEST_PHRASE= b'\x00' * 20
   
-  sh= Shannon( bytes( [35, 94, 229, 22, 39, 18, 50, 218, 217, 93, 94, 70, 35, 72, 180, 73, 160, 63, 163, 199, 246, 142, 66, 52, 195, 229, 47, 111, 49, 154, 41, 37] )) 
+  sh= Shannon( bytes( [133, 199, 15, 101, 207, 100, 229, 237, 15, 249, 248, 155, 76, 170, 62, 189, 239, 251, 147, 213, 22, 186, 157, 47, 218, 198, 235, 14, 171, 50, 11, 121] )) 
   sh.set_nonce( 0 )
-  print( sh.decrypt( bytes( [86, 230, 147] ) ) )
+  p1= sh.decrypt( bytes( [235, 94, 210, 19, 246, 203, 195, 35, 22, 215, 80, 69, 158, 247, 110, 146, 241, 101, 199, 37, 67, 92, 5, 197, 112, 244, 77, 185, 197, 118, 119, 56, 164, 246, 159, 242, 56, 200, 39, 27, 141, 191, 37, 244, 244, 164, 44, 250, 59, 227, 245, 155, 239, 155, 137, 85, 244, 29, 52, 233, 180, 119, 166, 46, 252, 24, 141, 20, 135, 73, 144, 10, 176, 79, 88, 228, 140, 62, 173, 192, 117, 116, 152, 182, 246, 183, 88, 90, 73, 51, 159, 83, 227, 222, 140, 48, 157, 137, 185, 131, 201, 202, 122, 112, 207, 231, 153, 155, 9, 163, 225, 73, 41, 252, 249, 65, 33, 102, 83, 100, 36, 115, 174, 191, 43, 250, 113, 229, 146, 47, 154, 175, 55, 101, 73, 164, 49, 234, 103, 32, 53, 190, 236, 47, 210, 78, 141, 0, 176, 255, 79, 151, 159, 66, 20,] ) )
+  print( [ hex(x) for x in p1 ] )
+  print( [ hex(x) for x in sh.finish( 4 ) ] )
+  sh.set_nonce( 1 )
+  print( [ hex(x) for x in sh.decrypt( bytes( [173, 184, 50] ) ) ] )
   
   sh= Shannon( TEST_KEY )
   sh.set_nonce( 0 )
   encr= [ sh.encrypt( bytes( [ x ] ) ) for x in TEST_PHRASE ]
   print( 'Encrypted 1-by-1 (len %d)' % len( encr ), [ hex( x[ 0 ] ) for x in encr ] )
   print( '  sbuf %08x' %  sh._sbuf )
-  print( '  MAC', [ hex( x ) for x in sh.finish( TESTSIZE ) ] )
+  print( '  MAC', [ hex( x ) for x in sh.finish( 4 ) ] )
 
   sh.set_nonce( 0 )
   encr= sh.encrypt( TEST_PHRASE )
   print( 'Encrypted whole (len %d)' % len( encr ), [ hex( x )for x in encr ] )
   print( '  sbuf %08x' %  sh._sbuf )
-  print( '  MAC', [ hex( x ) for x in sh.finish( TESTSIZE ) ] )
+  print( '  MAC', [ hex( x ) for x in sh.finish( 4 ) ] )
 
   sh.set_nonce( 0 )
   print( 'Decrypted whole', [ hex( x ) for x in sh.decrypt( encr ) ] )
-  print( '  MAC', [ hex( x ) for x in sh.finish( TESTSIZE ) ] )
+  print( '  MAC', [ hex( x ) for x in sh.finish( 4 ) ] )
   
   sh.set_nonce( 0 )
   decr= [ sh.decrypt( bytes( [ x ] )) for x in encr ]
   print( 'Decrypted 1-by-1', [ hex( x[ 0 ] ) for x in decr ] )
-  print( '  MAC', [ hex( x ) for x in sh.finish( TESTSIZE ) ] )
+  print( '  MAC', [ hex( x ) for x in sh.finish( 4 ) ] )
   
   
   
