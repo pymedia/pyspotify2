@@ -8,7 +8,9 @@ import os,         \
        random,     \
        hmac,       \
        hashlib,    \
-       enum
+       enum,       \
+       threading,  \
+       time
 import diffiehellman.diffiehellman as diffiehellman
 import shannon
 
@@ -53,7 +55,7 @@ class Connection:
                                 socket.SOCK_STREAM)
     self._socket.connect( SPOTIFY_AP_ADDRESS )
     self._connect_type= Connection.CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE
-  
+    
   def send_packet( self, 
                    prefix, 
                    data ):
@@ -74,7 +76,13 @@ class Connection:
     self._socket.send( request )
     return request
 
-  def recv_packet( self ):
+  def recv_packet( self, timeout= 0 ):
+    if timeout:
+      self._socket.setblocking( 0 )
+      self._socket.settimeout( timeout )
+    else:
+      self._socket.setblocking( 1 )
+      
     if self._connect_type== Connection.CONNECT_TYPE.CONNECT_TYPE_HANDSHAKE:
       size_packet= self._socket.recv( 4 )
       size= struct.unpack( ">I",  size_packet )
@@ -84,11 +92,16 @@ class Connection:
       self._decoder_nonce+= 1
 
       recv_header= self._socket.recv( HEADER_SIZE )
-      resp_header= self._decoder.decrypt( recv_header )
-      size= struct.unpack( ">H", resp_header[ 1: ] )[ 0 ]
-      recv_body= self._socket.recv( size+ MAC_SIZE )
-      resp_body= self._decoder.decrypt( recv_body )
-      return resp_header[ 0 ], size, resp_body[ : size ]
+      header= self._decoder.decrypt( recv_header )
+      size= struct.unpack( ">H", header[ 1: ] )[ 0 ]
+      recv_body= self._socket.recv( size )
+      mac= self._socket.recv( MAC_SIZE )
+      body= self._decoder.decrypt( recv_body )
+      calculated_mac= self._decoder.finish( MAC_SIZE )
+      if calculated_mac!= mac:
+        raise Exception( 'RECV MAC not matching', calculated_mac, mac )
+        
+      return header[ 0 ], size, body
 
   def handshake_completed( self, send_key, recv_key ):
     self._connect_type= Connection.CONNECT_TYPE.CONNECT_TYPE_STREAM
@@ -191,7 +204,7 @@ class Session:
     self._local_keys.generate_public_key()
 
 # ----------------------------------- Mercury related classes ----------------------------------
-class MercuryRequest:
+class MercuryManager( threading.Thread ):
   
   class REQUEST_TYPE(enum.Enum):
     SEND=      1
@@ -206,58 +219,96 @@ class MercuryRequest:
         return 0xb2
 
   def __init__( self, connection ):
+    super(MercuryManager, self).__init__()
     self._connection= connection
     self._sequence= 0x0000000000000000
+    self._callbacks= {}
+    self._terminated= False
+    self.start()
+    
+  def set_callback( self, response_code, func ):
+    self._callbacks[ response_code ]= func
   
-  def execute( self, request_type, uri ):
+  def is_terminated( self ):
+    return self._terminated
+    
+  def terminate( self ):
+    self._terminated= True
+    
+  def run( self ):
+    while not self._terminated:
+      try:
+        response_code, size, payload= connection.recv_packet( 0.1 )
+        print( 'Received:', hex( response_code ), ' len ', size )
+      except socket.timeout:
+        pass
+      
+  def execute( self, request_type, uri, callback ):
     header= mercury.Header( **{ 'uri':    uri,
                                 'method': str( request_type ) } )
     buffer= b'\x00\x08'+   \
             self._sequence.to_bytes( 8, byteorder='big' )+  \
             b'\x01'+       \
-            b'\x00\x01\x00'+       \
+            b'\x00\x01'+   \
             struct.pack(">H", len( header.SerializeToString() ) )+ \
             header.SerializeToString()
-    print( buffer )
-
-    buffer= bytes( [0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 35, 10, 28, 104, 109, 58, 47, 47, 114, 101, 109, 111, 116, 101, 47, 51, 47, 117, 115, 101, 114, 47, 120, 101, 104, 105, 121, 111, 117, 120, 47, 26, 3, 83, 85, 66] )        
     self._sequence+= 1
-    #request= self._connection.send_packet( request_type.as_command(), buffer )   
-    request= self._connection.send_packet( 0xB3, buffer )   
-    response= self._connection.recv_packet()
-    return response
+    #buffer= bytes( [0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 35, 10, 28, 104, 109, 58, 47, 47, 114, 101, 109, 111, 116, 101, 47, 51, 47, 117, 115, 101, 114, 47, 120, 101, 104, 105, 121, 111, 117, 120, 47, 26, 3, 83, 85, 66] )
+    print( 'Req sent', hex( request_type.as_command() ), [ hex(x) for x in buffer ] )
+    response_code, callback_func= callback
+    self.set_callback( response_code, callback_func )
+    self._connection.send_packet( request_type.as_command(), buffer )   
+    print( header )
     
 # ----------------------------------- Track metadata and stream ----------------------------------
 class Track:
-  def __init__( self, connection, uri ):
-    self._connection= connection
+  TRACK_INFO_REQUEST_COMMAND= 0x22
+  TRACK_INFO_RESPONSE_COMMAND= 0xFF
+  
+  def __init__( self, mercury_manager, uri ):
+    self._mercury_manager= mercury_manager
     self._uri= uri
+    self._track= metadata.Track()
+    self._event= threading.Event()
+    
+  def _process_track_info( self, response_code, payload ):
+    print( 'Response code:', hex( payload ), ' length:', track_data[ 1 ] )
+    self._track.ParseFromString( payload )
+    self._event.set()
     
   def load( self ):
-    track_data= MercuryRequest(self._connection).execute( MercuryRequest.REQUEST_TYPE.SEND, 
-                                                          TRACK_PATH_TEMPLATE % self._uri )
-    track= metadata.Track()
-    #track.ParseFromString( track_data )
-    print( 'Response code:', hex( track_data[ 0 ] ), ' length:', track_data[ 1 ] )
+    self._mercury_manager.execute( MercuryManager.REQUEST_TYPE.GET, 
+                                   TRACK_PATH_TEMPLATE % self._uri,
+                                   ( Track.TRACK_INFO_RESPONSE_COMMAND, self._process_track_info ) )
+    self._event.wait( 1 )                              
 
 if __name__ == '__main__':
+
   if len( sys.argv )!= 4:
     print( 'Usage: spotify.py <username> <password> <track_uri>' )
   else:
+    import signal
+    manager= None
     
+    def signal_handler(signal, frame):
+      print( 'CTRL-C pressed' )
+      if manager:
+        manager.terminate()
+    
+    signal.signal(signal.SIGINT, signal_handler)
+
     connection = Connection()
     session= Session().connect( connection )
     reusable_token= session.authenticate( sys.argv[ 1 ], 
                                           bytes( sys.argv[ 2 ], 'ascii' ), 
                                           authentication.AUTHENTICATION_USER_PASS )
-                                          
     print( 'AUTH successfull. Token: ', reusable_token )
-    response= connection.recv_packet()
-    print( 'RESP1', response )
-    response= connection.recv_packet()
-    print( 'RESP2', response )
-    response= connection.recv_packet()
-    print( 'RESP3', response )
-    #track= Track( connection, sys.argv[ 3 ] )
-    #track.load()
+    track= None
+    manager= MercuryManager( connection )
+    while not manager.is_terminated():
+      time.sleep(1)
+      if not track:
+        track= Track( manager, sys.argv[ 3 ] )
+        track.load()
+      
     
