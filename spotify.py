@@ -57,6 +57,19 @@ def _toBase16( id62 ):
     
   return result
 
+# ----------------------------------- Request types  ----------------------------------
+class REQUEST_TYPE(enum.Enum):
+  SEND=      1
+  GET =      2
+  
+  def __str__(self):
+    return self.name
+    
+  def as_command( self ):
+    if self.name== 'SEND' or \
+       self.name== 'GET':
+      return 0xb2
+
 # ----------------------------------- Plain Connection to server ----------------------------------
 class Connection:
   class CONNECT_TYPE(enum.Enum):
@@ -251,18 +264,6 @@ class Session:
 # ----------------------------------- Mercury related classes ----------------------------------
 class MercuryManager( threading.Thread ):
   
-  class REQUEST_TYPE(enum.Enum):
-    SEND=      1
-    GET =      2
-    
-    def __str__(self):
-      return self.name
-      
-    def as_command( self ):
-      if self.name== 'SEND' or \
-         self.name== 'GET':
-        return 0xb2
-
   def __init__( self, connection ):
     super(MercuryManager, self).__init__()
     self._connection= connection
@@ -300,7 +301,7 @@ class MercuryManager( threading.Thread ):
       parts.append( chunk )
       pos+= 2+ chunk_size
     
-    return 0x0000000000000000, header, parts
+    return int.from_bytes(payload[ 2: 10 ], byteorder='big'), header, parts
 
   def run( self ):
     while not self._terminated:
@@ -311,7 +312,7 @@ class MercuryManager( threading.Thread ):
           self._process04( payload )
         elif response_code== 0x1B:
           self._process1b( payload )
-        elif response_code== MercuryManager.REQUEST_TYPE.GET.as_command():
+        elif response_code== REQUEST_TYPE.GET.as_command():
           seq_id, header, parts= self._parse_response( payload )
           try:
             callback= self._callbacks[ seq_id ]
@@ -325,7 +326,8 @@ class MercuryManager( threading.Thread ):
             print( 'Callback for', seq_id, 'is not found' ) 
             
         elif response_code!= INVALID_COMMAND:
-          print( 'Received unknown response:', hex( response_code ), ' len ', size )
+          #print( 'Received unknown response:', hex( response_code ), ' len ', size )
+          pass
           
         """
             0x4a => (), 
@@ -348,7 +350,6 @@ class MercuryManager( threading.Thread ):
     self.set_callback( self._sequence, callback )
     self._sequence+= 1
 
-    print( 'Req sent', hex( request_type.as_command() ), [ (x) for x in buffer ] )
     self._connection.send_packet( request_type.as_command(), buffer )   
     
 # ----------------------------------- Track metadata and stream ----------------------------------
@@ -360,14 +361,11 @@ class Track:
     self._event= threading.Event()
     
   def _process_track_info( self, header, parts ):
-    print( 'Header:', header )
-    print( 'Parts #', len(parts) )
     self._track.ParseFromString( parts[ 0 ] )
-    print( self._track )
     self._event.set()
   
   def load( self ):
-    self._mercury_manager.execute( MercuryManager.REQUEST_TYPE.GET, 
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
                                    TRACK_PATH_TEMPLATE % hex( _toBase16( self._track_id ) )[ 2: ],
                                    self._process_track_info )
     self._event.wait( 1 )                              
@@ -375,13 +373,12 @@ class Track:
 if __name__ == '__main__':
 
   if len( sys.argv )!= 4:
-    print( 'Usage: spotify.py <username> <password> <track_uri>' )
+    print( 'Usage: spotify.py <username> <password> <track>' )
   else:
     import signal
     manager= None
     
     def signal_handler(signal, frame):
-      print( 'CTRL-C pressed' )
       if manager:
         manager.terminate()
     
@@ -400,4 +397,5 @@ if __name__ == '__main__':
       if not track:
         track= Track( manager, bytes( sys.argv[ 3 ], 'ascii' ) )
         track.load()
+        print( 'Track loaded', track._track )
       
