@@ -39,6 +39,7 @@ VERSION_STRING=           "pyspotify2-0.1"
 LOGIN_REQUEST_COMMAND=    0xAB
 AUTH_SUCCESSFUL_COMMAND=  0xAC
 AUTH_DECLINED_COMMAND=    0xAD
+AUDIO_KEY_REQUEST_COMMAND=0x0C
 MAC_SIZE=                 4
 HEADER_SIZE=              3
 MAX_READ_COUNT=           5
@@ -268,6 +269,7 @@ class MercuryManager( threading.Thread ):
     super(MercuryManager, self).__init__()
     self._connection= connection
     self._sequence= 0x0000000000000000
+    self._audio_key_sequence= int(0)
     self._callbacks= {}
     self._terminated= False
     self.start()
@@ -288,6 +290,26 @@ class MercuryManager( threading.Thread ):
   def _process1b( self, data ):
     self._country= data
 
+  def _process_audio_key( self, data ):
+    if len( data )>= 20:
+      seq_id= int.from_bytes(data[ :4 ], 
+                             byteorder='big')
+      try:
+        callback= self._callbacks[ seq_id ]
+        del( self._callbacks[ seq_id ] )
+      except:
+        callback= None
+      
+      if callback:
+        callback( data[ 4: ] )
+      else:
+        print( 'Callback for key %d is not found' % seq_id )
+    else:
+      print( 'Wrong format of the key response', data )
+  
+  def _process_audio_key_failure( self, data ):
+    print( 'Key cannot be retrieved', data )
+   
   def _parse_response( self, payload ):
     header_size= struct.unpack( ">H",  payload[ 13: 15 ] )[ 0 ]
     header= mercury.Header()
@@ -312,6 +334,10 @@ class MercuryManager( threading.Thread ):
           self._process04( payload )
         elif response_code== 0x1B:
           self._process1b( payload )
+        elif response_code== 0x0D:
+          self._process_audio_key( payload )
+        elif response_code== 0x0E:
+          self._process_audio_key_failure( payload )
         elif response_code== REQUEST_TYPE.GET.as_command():
           seq_id, header, parts= self._parse_response( payload )
           try:
@@ -349,26 +375,55 @@ class MercuryManager( threading.Thread ):
             header.SerializeToString()
     self.set_callback( self._sequence, callback )
     self._sequence+= 1
-
     self._connection.send_packet( request_type.as_command(), buffer )   
+    
+  def request_audio_key( self, track_id, file_id, callback ):
+    i= track_id.to_bytes( 16, byteorder='big' )
+    i= file_id.to_bytes( 20, byteorder='big' )
+    i= self._audio_key_sequence.to_bytes( 4, byteorder='big' )
+    buffer= track_id.to_bytes( 16, byteorder='big' )+ \
+            file_id.to_bytes( 20, byteorder='big' )+ \
+            self._audio_key_sequence.to_bytes( 4, byteorder='big' )+ \
+            b'\x00\x00'
+    self.set_callback( self._audio_key_sequence, callback )
+    self._audio_key_sequence+= 1
+    self._connection.send_packet( AUDIO_KEY_REQUEST_COMMAND, buffer )   
     
 # ----------------------------------- Track metadata and stream ----------------------------------
 class Track:
   def __init__( self, mercury_manager, track_id ):
     self._mercury_manager= mercury_manager
-    self._track_id= track_id
+    self._track_id= _toBase16( track_id )
+    self._file_id= None
+    self._audio_key= None
     self._track= metadata.Track()
     self._event= threading.Event()
+
+  def _audio_key_callback( self, payload ):
+    self._audio_key= int.from_bytes(payload[ :16 ], 
+                                    byteorder='big')
+    print( 'Key received %X' % self._audio_key )
+    self._event.set()
     
-  def _process_track_info( self, header, parts ):
+  def _track_info_callback( self, header, parts ):
     self._track.ParseFromString( parts[ 0 ] )
     self._event.set()
   
-  def load( self ):
+  def load( self, format ):
     self._mercury_manager.execute( REQUEST_TYPE.GET, 
-                                   TRACK_PATH_TEMPLATE % hex( _toBase16( self._track_id ) )[ 2: ],
-                                   self._process_track_info )
-    self._event.wait( 1 )                              
+                                   TRACK_PATH_TEMPLATE % hex( self._track_id )[ 2: ],
+                                   self._track_info_callback )
+    self._event.wait( 1 )
+    for file in self._track.file:
+      if file.format== format:
+        self._file_id= int.from_bytes( file.file_id, byteorder='big' )
+        self._mercury_manager.request_audio_key( self._track_id, 
+                                                 self._file_id,
+                                                 self._audio_key_callback )
+        self._event.wait( 1 )
+        return True
+        
+    return False
 
 if __name__ == '__main__':
 
@@ -396,6 +451,8 @@ if __name__ == '__main__':
       time.sleep(1)
       if not track:
         track= Track( manager, bytes( sys.argv[ 3 ], 'ascii' ) )
-        track.load()
-        print( 'Track loaded', track._track )
+        if track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_320' ) ):
+          print( 'Found file matching format %s track %s' % ( track._file_id, track._track_id ))
+        else:
+          print( 'Track with format %d was not found' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_320' ) )
       
