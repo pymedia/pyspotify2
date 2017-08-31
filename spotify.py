@@ -275,6 +275,9 @@ class MercuryManager( threading.Thread ):
     self.start()
     self._country= None
     
+  def get_country( self ):
+    return self._country
+
   def set_callback( self, seq_id, func ):
     self._callbacks[ seq_id ]= func
   
@@ -288,7 +291,7 @@ class MercuryManager( threading.Thread ):
     self._connection.send_packet(0x49, data )
 
   def _process1b( self, data ):
-    self._country= data
+    self._country= data.decode("ascii")
 
   def _process_audio_key( self, data ):
     if len( data )>= 20:
@@ -378,11 +381,16 @@ class MercuryManager( threading.Thread ):
     self._connection.send_packet( request_type.as_command(), buffer )   
     
   def request_audio_key( self, track_id, file_id, callback ):
-    i= track_id.to_bytes( 16, byteorder='big' )
+    """
     i= file_id.to_bytes( 20, byteorder='big' )
+    print( [ x for x in i ] )
+    i= track_id.to_bytes( 16, byteorder='big' )
+    print( [ x for x in i ] )
     i= self._audio_key_sequence.to_bytes( 4, byteorder='big' )
-    buffer= track_id.to_bytes( 16, byteorder='big' )+ \
-            file_id.to_bytes( 20, byteorder='big' )+ \
+    print( [ x for x in i ] )
+    """
+    buffer= file_id.to_bytes( 20, byteorder='big' )+ \
+            track_id.to_bytes( 16, byteorder='big' )+ \
             self._audio_key_sequence.to_bytes( 4, byteorder='big' )+ \
             b'\x00\x00'
     self.set_callback( self._audio_key_sequence, callback )
@@ -414,6 +422,17 @@ class Track:
                                    TRACK_PATH_TEMPLATE % hex( self._track_id )[ 2: ],
                                    self._track_info_callback )
     self._event.wait( 1 )
+    
+    print( track._track )
+    
+    # Parse restrictions and alternatives
+    for restriction in track._track.restriction:
+      if restriction.countries_forbidden!= '' and self._mercury_manager.get_country() in restriction.countries_forbidden:
+        print( 'Track ', self._track.name, 'is not allowed in', self._mercury_manager.get_country() )
+        # TODO: we shoould add alternatives seeking if track is not allowed in our country
+        return False
+
+    # Scan through all files and match the format desired
     for file in self._track.file:
       if file.format== format:
         self._file_id= int.from_bytes( file.file_id, byteorder='big' )
@@ -451,8 +470,8 @@ if __name__ == '__main__':
       time.sleep(1)
       if not track:
         track= Track( manager, bytes( sys.argv[ 3 ], 'ascii' ) )
-        if track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_320' ) ):
+        if track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) ):
           print( 'Found file matching format %s track %s' % ( track._file_id, track._track_id ))
         else:
-          print( 'Track with format %d was not found' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_320' ) )
+          print( 'Track with format %d was not found' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
       
