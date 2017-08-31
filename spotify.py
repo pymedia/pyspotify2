@@ -36,14 +36,24 @@ INFORMATION_STRING=       "pyspotify2"
 DEVICE_ID=                "452198fd329622876e14907634264e6f332e9fb3"
 VERSION_STRING=           "pyspotify2-0.1"
 
-LOGIN_REQUEST_COMMAND=    0xAB
-AUTH_SUCCESSFUL_COMMAND=  0xAC
-AUTH_DECLINED_COMMAND=    0xAD
-AUDIO_KEY_REQUEST_COMMAND=0x0C
-MAC_SIZE=                 4
-HEADER_SIZE=              3
-MAX_READ_COUNT=           5
-INVALID_COMMAND=          0xFFFF
+LOGIN_REQUEST_COMMAND=        0xAB
+AUTH_SUCCESSFUL_COMMAND=      0xAC
+AUTH_DECLINED_COMMAND=        0xAD
+
+FIRST_REQUEST=                0x04
+AUDIO_CHUNK_REQUEST_COMMAND=  0x08
+AUDIO_CHUNK_SUCCESS_RESPONSE= 0x09
+AUDIO_CHUNK_FAILURE_RESPONSE= 0x0A
+AUDIO_KEY_REQUEST_COMMAND=    0x0C
+AUDIO_KEY_SUCCESS_RESPONSE=   0x0D
+AUDIO_KEY_FAILURE_RESPONSE=   0x0E
+COUNTRY_CODE_RESPONSE=        0x1B
+
+MAC_SIZE=                     4
+HEADER_SIZE=                  3
+MAX_READ_COUNT=               5
+INVALID_COMMAND=              0xFFFF
+AUDIO_CHUNK_SIZE=             0x20000
 
 BASE62_DIGITS=            b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 TRACK_PATH_TEMPLATE=      'hm://metadata/3/track/%s'
@@ -269,11 +279,13 @@ class MercuryManager( threading.Thread ):
     super(MercuryManager, self).__init__()
     self._connection= connection
     self._sequence= 0x0000000000000000
-    self._audio_key_sequence= int(0)
+    self._audio_key_sequence=   int(0)
+    self._audio_chunk_sequence= 0
     self._callbacks= {}
     self._terminated= False
     self.start()
     self._country= None
+    self._audio_chunk_callback= None
     
   def get_country( self ):
     return self._country
@@ -290,7 +302,7 @@ class MercuryManager( threading.Thread ):
   def _process04( self, data ):
     self._connection.send_packet(0x49, data )
 
-  def _process1b( self, data ):
+  def _process_country_response( self, data ):
     self._country= data.decode("ascii")
 
   def _process_audio_key( self, data ):
@@ -326,21 +338,26 @@ class MercuryManager( threading.Thread ):
       parts.append( chunk )
       pos+= 2+ chunk_size
     
-    return int.from_bytes(payload[ 2: 10 ], byteorder='big'), header, parts
+    return int.from_bytes(payload[ 2: 10 ], 
+                          byteorder='big'), header, parts
 
   def run( self ):
     while not self._terminated:
       try:
         response_code, size, payload= connection.recv_packet( 0.1 )
         
-        if response_code== 0x04:
+        if response_code== FIRST_REQUEST:
           self._process04( payload )
-        elif response_code== 0x1B:
-          self._process1b( payload )
-        elif response_code== 0x0D:
+        elif response_code== COUNTRY_CODE_RESPONSE:
+          self._process_country_response( payload )
+        elif response_code== AUDIO_KEY_SUCCESS_RESPONSE:
           self._process_audio_key( payload )
-        elif response_code== 0x0E:
+        elif response_code== AUDIO_KEY_FAILURE_RESPONSE:
           self._process_audio_key_failure( payload )
+        elif response_code== AUDIO_CHUNK_SUCCESS_RESPONSE or \
+             response_code== AUDIO_CHUNK_FAILURE_RESPONSE:
+          self._audio_chunk_callback and self._audio_chunk_callback( success= ( response_code== AUDIO_CHUNK_SUCCESS_RESPONSE ), 
+                                                                     payload= payload )
         elif response_code== REQUEST_TYPE.GET.as_command():
           seq_id, header, parts= self._parse_response( payload )
           try:
@@ -355,7 +372,7 @@ class MercuryManager( threading.Thread ):
             print( 'Callback for', seq_id, 'is not found' ) 
             
         elif response_code!= INVALID_COMMAND:
-          #print( 'Received unknown response:', hex( response_code ), ' len ', size )
+          print( 'Received unknown response:', hex( response_code ), ' len ', size )
           pass
           
         """
@@ -376,27 +393,44 @@ class MercuryManager( threading.Thread ):
             b'\x00\x01'+   \
             struct.pack(">H", len( header.SerializeToString() ) )+ \
             header.SerializeToString()
-    self.set_callback( self._sequence, callback )
+    self.set_callback( self._sequence, 
+                       callback )
     self._sequence+= 1
-    self._connection.send_packet( request_type.as_command(), buffer )   
+    self._connection.send_packet( request_type.as_command(), 
+                                  buffer )   
     
   def request_audio_key( self, track_id, file_id, callback ):
-    """
-    i= file_id.to_bytes( 20, byteorder='big' )
-    print( [ x for x in i ] )
-    i= track_id.to_bytes( 16, byteorder='big' )
-    print( [ x for x in i ] )
-    i= self._audio_key_sequence.to_bytes( 4, byteorder='big' )
-    print( [ x for x in i ] )
-    """
-    buffer= file_id.to_bytes( 20, byteorder='big' )+ \
-            track_id.to_bytes( 16, byteorder='big' )+ \
+    buffer= file_id.to_bytes( 20, byteorder='big' )+                 \
+            track_id.to_bytes( 16, byteorder='big' )+                \
             self._audio_key_sequence.to_bytes( 4, byteorder='big' )+ \
             b'\x00\x00'
-    self.set_callback( self._audio_key_sequence, callback )
+    self.set_callback( self._audio_key_sequence, 
+                       callback )
     self._audio_key_sequence+= 1
-    self._connection.send_packet( AUDIO_KEY_REQUEST_COMMAND, buffer )   
+    self._connection.send_packet( AUDIO_KEY_REQUEST_COMMAND, 
+                                  buffer )   
     
+  def start_audio_chunk( self, file_id ):
+    self._audio_chunk_sequence= 0
+  
+  def fetch_audio_chunk( self, file_id, index, callback ):
+    sample_start= int( index* AUDIO_CHUNK_SIZE/ 4 )
+    sample_finish= int( ( index+ 1 )* AUDIO_CHUNK_SIZE/ 4 )
+    buffer= self._audio_chunk_sequence.to_bytes( 2, byteorder='big' )+             \
+            b'\x00\x01'+                                                           \
+            b'\x00\x00'+                                                           \
+            b'\x00\x00\x00\x00'+                                                   \
+            b'\x00\x00\x9C\x40'+                                                   \
+            b'\x00\x02\x00\x00'+                                                   \
+            file_id.to_bytes( 20, byteorder='big' )+                               \
+            sample_start.to_bytes( 4, byteorder='big' )+                           \
+            sample_finish.to_bytes( 4, byteorder='big' )
+
+    self._audio_chunk_callback= callback
+    self._audio_chunk_sequence+= 1
+    self._connection.send_packet( AUDIO_CHUNK_REQUEST_COMMAND, 
+                                  buffer )   
+  
 # ----------------------------------- Track metadata and stream ----------------------------------
 class Track:
   def __init__( self, mercury_manager, track_id ):
@@ -417,32 +451,61 @@ class Track:
     self._track.ParseFromString( parts[ 0 ] )
     self._event.set()
   
+  def _track_chunk_callback( self, success, payload ):
+    if success:
+      self._chunk_data+= payload[ 2: ]
+      # Cut the header
+      print( 'Chunk', [ x for x in payload[ :10 ] ] )
+      if len( payload )== 2:   # Last packet is always 2 bytes (sequence only)
+        self._event.set()
+    else:
+      print( 'Failure', payload )
+      self._event.set()
+    
   def load( self, format ):
+    self._event.clear()
     self._mercury_manager.execute( REQUEST_TYPE.GET, 
                                    TRACK_PATH_TEMPLATE % hex( self._track_id )[ 2: ],
                                    self._track_info_callback )
-    self._event.wait( 1 )
-    
-    print( track._track )
-    
     # Parse restrictions and alternatives
-    for restriction in track._track.restriction:
-      if restriction.countries_forbidden!= '' and self._mercury_manager.get_country() in restriction.countries_forbidden:
-        print( 'Track ', self._track.name, 'is not allowed in', self._mercury_manager.get_country() )
-        # TODO: we shoould add alternatives seeking if track is not allowed in our country
-        return False
+    self._event.wait()
+    restriction= track._track.restriction[ 0 ]
+    if self._mercury_manager.get_country() in restriction.countries_forbidden:
+      print( '!!Track ', self._track.name, 'is not allowed in', self._mercury_manager.get_country(), 'looking for alternatives' )
+      # TODO: we should add alternatives seeking if track is not allowed in our country
+      alternative= track._track.alternative[ 0 ]
+      if self._mercury_manager.get_country() in alternative.restriction[ 0 ].countries_allowed:
+        # Get new guid and files
+        self._track_id= int.from_bytes( alternative.gid, 
+                                        byteorder='big' )
+        files= alternative.file
+    else:
+      files= self._track.file
 
     # Scan through all files and match the format desired
-    for file in self._track.file:
+    for file in files:
       if file.format== format:
-        self._file_id= int.from_bytes( file.file_id, byteorder='big' )
+        self._file_id= int.from_bytes( file.file_id, 
+                                       byteorder='big' )
+        self._event.clear()
         self._mercury_manager.request_audio_key( self._track_id, 
                                                  self._file_id,
                                                  self._audio_key_callback )
-        self._event.wait( 1 )
+        self._event.wait()
         return True
         
     return False
+
+  def get_chunk( self, chunk ):
+    # Reset lock just in case
+    self._chunk_data= b''
+    self._event.clear()
+    self._mercury_manager.fetch_audio_chunk( self._file_id, 
+                                             chunk,
+                                             self._track_chunk_callback )
+    self._event.wait()
+    return self._chunk_data
+    
 
 if __name__ == '__main__':
 
@@ -472,6 +535,9 @@ if __name__ == '__main__':
         track= Track( manager, bytes( sys.argv[ 3 ], 'ascii' ) )
         if track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) ):
           print( 'Found file matching format %s track %s' % ( track._file_id, track._track_id ))
+          # Now load some audio data from track
+          chunk_data= track.get_chunk( 0 )
+          print( 'File chunk #%d received. Size %d' % ( 0, len( chunk_data ) ) )
         else:
           print( 'Track with format %d was not found' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
       
