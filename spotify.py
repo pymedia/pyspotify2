@@ -410,9 +410,6 @@ class MercuryManager( threading.Thread ):
     self._connection.send_packet( AUDIO_KEY_REQUEST_COMMAND, 
                                   buffer )   
     
-  def start_audio_chunk( self, file_id ):
-    self._audio_chunk_sequence= 0
-  
   def fetch_audio_chunk( self, file_id, index, callback ):
     sample_start= int( index* AUDIO_CHUNK_SIZE/ 4 )
     sample_finish= int( ( index+ 1 )* AUDIO_CHUNK_SIZE/ 4 )
@@ -453,11 +450,17 @@ class Track:
   
   def _track_chunk_callback( self, success, payload ):
     if success:
-      self._chunk_data+= payload[ 2: ]
-      # Cut the header
-      print( 'Chunk', [ x for x in payload[ :10 ] ] )
-      if len( payload )== 2:   # Last packet is always 2 bytes (sequence only)
-        self._event.set()
+      seq= int.from_bytes( payload[ :2 ], 
+                           byteorder='big')
+      if len( self._chunk_header )== 0:
+        # First packet, parse header
+        header_len= int.from_bytes( payload[ 2:4 ], 
+                                    byteorder='big')
+        self._chunk_header= payload[ 4: header_len+ 4 ]
+      else:
+        self._chunk_data+= payload[ 2: ]
+        if len( payload )== 2:   # Last packet is always 2 bytes (sequence only)
+          self._event.set()
     else:
       print( 'Failure', payload )
       self._event.set()
@@ -499,6 +502,7 @@ class Track:
   def get_chunk( self, chunk ):
     # Reset lock just in case
     self._chunk_data= b''
+    self._chunk_header= b''
     self._event.clear()
     self._mercury_manager.fetch_audio_chunk( self._file_id, 
                                              chunk,
@@ -537,7 +541,9 @@ if __name__ == '__main__':
           print( 'Found file matching format %s track %s' % ( track._file_id, track._track_id ))
           # Now load some audio data from track
           chunk_data= track.get_chunk( 0 )
-          print( 'File chunk #%d received. Size %d' % ( 0, len( chunk_data ) ) )
+          print( 'File chunk #%d received. Size %d. Header %s' % ( 0, len( chunk_data ), track._chunk_header ) )
+          chunk_data= track.get_chunk( 1 )
+          print( 'File chunk #%d received. Size %d. Header %s' % ( 1, len( chunk_data ), track._chunk_header ) )
         else:
           print( 'Track with format %d was not found' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
       
