@@ -545,7 +545,7 @@ if __name__ == '__main__':
           start_time= time.time()
           aes = pyaes.AESModeOfOperationCTR( track._audio_key.to_bytes( 16, byteorder='big' ), 
                                              pyaes.Counter( int.from_bytes( AUDIO_AESIV, byteorder='big' ) ) )
-          f= open( sys.argv[ 3 ]+ '.ogg.encr', 'wb' )
+          f= open( sys.argv[ 3 ]+ '.ogg', 'wb' )
           for i in range( 10000 ):
             chunk_data= track.get_chunk( i )
             if i== 0:
