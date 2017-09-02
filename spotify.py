@@ -12,7 +12,8 @@ import os,         \
        threading,  \
        time
 import diffiehellman.diffiehellman as diffiehellman
-import shannon
+import shannon,    \
+       pyaes
 
 # patch DH with non RFC prime to be used for handshake
 if not 1 in diffiehellman.PRIMES:
@@ -55,8 +56,9 @@ MAX_READ_COUNT=               5
 INVALID_COMMAND=              0xFFFF
 AUDIO_CHUNK_SIZE=             0x20000
 
-BASE62_DIGITS=            b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-TRACK_PATH_TEMPLATE=      'hm://metadata/3/track/%s'
+AUDIO_AESIV=                  b'\x72\xe0\x67\xfb\xdd\xcb\xcf\x77\xeb\xe8\xbc\x64\x3f\x63\x0d\x93'
+BASE62_DIGITS=                b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+TRACK_PATH_TEMPLATE=          'hm://metadata/3/track/%s'
 
 """
   Convert from 62 symbol alphabet -> 16 symbols
@@ -462,7 +464,7 @@ class Track:
         if len( payload )== 2:   # Last packet is always 2 bytes (sequence only)
           self._event.set()
     else:
-      print( 'Failure', payload )
+      print( 'Failure:', payload )
       self._event.set()
     
   def load( self, format ):
@@ -540,10 +542,24 @@ if __name__ == '__main__':
         if track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) ):
           print( 'Found file matching format %s track %s' % ( track._file_id, track._track_id ))
           # Now load some audio data from track
-          chunk_data= track.get_chunk( 0 )
-          print( 'File chunk #%d received. Size %d. Header %s' % ( 0, len( chunk_data ), track._chunk_header ) )
-          chunk_data= track.get_chunk( 1 )
-          print( 'File chunk #%d received. Size %d. Header %s' % ( 1, len( chunk_data ), track._chunk_header ) )
+          start_time= time.time()
+          aes = pyaes.AESModeOfOperationCTR( track._audio_key.to_bytes( 16, byteorder='big' ), 
+                                             pyaes.Counter( int.from_bytes( AUDIO_AESIV, byteorder='big' ) ) )
+          f= open( sys.argv[ 3 ]+ '.ogg.encr', 'wb' )
+          for i in range( 10000 ):
+            chunk_data= track.get_chunk( i )
+            if i== 0:
+              print( 'File chunk #%d received. Size %d. Header %s' % ( i, len( chunk_data ), track._chunk_header ) )
+            else:
+              print( 'File chunk #%d received. Size %d' % ( i, len( chunk_data ) ) )
+            
+            decrypted_chunk= aes.decrypt(chunk_data)
+            f.write( decrypted_chunk )
+            
+            if len( chunk_data )< AUDIO_CHUNK_SIZE:
+              print( 'Finished in %d secs' % ( time.time()- start_time ) )
+              f.close()
+              break
         else:
           print( 'Track with format %d was not found' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
       
