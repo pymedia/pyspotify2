@@ -13,12 +13,12 @@ Have fun !
    cd diffiehellman  
    python3 setup.py install  
    cd ..  
-   git clone https://github.com/ricmoo/pyaes/
-   cd pyaes
+   git clone https://github.com/ricmoo/pyaes/  
+   cd pyaes  
    python3 setup.py install  
-   cd ..
+   cd ..  
    git clone https://github.com/google/protobuf  
-   <Follow protobuf/python/README.md>
+   <Follow protobuf/python/README.md>  
 
    * you may substitute pyaes with https://github.com/dlitz/pycrypto
    
