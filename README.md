@@ -22,4 +22,4 @@ Have fun !
 
    * you may substitute pyaes with https://github.com/dlitz/pycrypto
    
-3. Run python3 spotify.py **username** **password**
+3. Run python3 spotify.py **username** **password** **track_id**
