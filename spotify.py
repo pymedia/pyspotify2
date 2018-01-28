@@ -10,7 +10,8 @@ import os,         \
        hashlib,    \
        enum,       \
        threading,  \
-       time
+       time,       \
+       base64
 import diffiehellman.diffiehellman as diffiehellman
 import shannon,    \
        pyaes
@@ -27,6 +28,7 @@ try:
   import protocol.impl.authentication_pb2 as authentication
   import protocol.impl.mercury_pb2 as mercury
   import protocol.impl.metadata_pb2 as metadata
+  import protocol.impl.playlist_pb2 as spotify_playlist
 except:
   raise Exception( "PROTO stubs were not found or have been corrupted. Please regenerate from .proto files using process_proto.py" ) 
 
@@ -34,7 +36,7 @@ KEY_LENGTH=               96
 SPOTIFY_AP_ADDRESS=       ( 'guc3-accesspoint-b-cz1w.ap.spotify.com', 80 )
 SPOTIFY_API_VERSION=      0x10800000000
 INFORMATION_STRING=       "pyspotify2"
-DEVICE_ID=                "452198fd329622876e14907634264e6f332e9fb3"
+DEVICE_ID=                "452198fd329622876e14907634264e6f332e5423"
 VERSION_STRING=           "pyspotify2-0.1"
 
 LOGIN_REQUEST_COMMAND=        0xAB
@@ -58,7 +60,14 @@ AUDIO_CHUNK_SIZE=             0x20000
 
 AUDIO_AESIV=                  b'\x72\xe0\x67\xfb\xdd\xcb\xcf\x77\xeb\xe8\xbc\x64\x3f\x63\x0d\x93'
 BASE62_DIGITS=                b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-TRACK_PATH_TEMPLATE=          'hm://metadata/3/track/%s'
+TRACK_PATH_TEMPLATE=          'hm://metadata/3/track/%s'  
+ALBUM_PATH_TEMPLATE=          'hm://metadata/3/album/%s'  
+ARTIST_PATH_TEMPLATE=         'hm://metadata/3/artist/%s'
+PLAYLISTS_PATH_TEMPLATE=      'hm://playlist/user/%s/rootlist?from=0&length=100' 
+PLAYLIST_CONTENTS_TEMPLATE=   'hm://playlist/%s?from=0&length=100'
+
+ALBUM_GID=  ''
+ARTIST_GID= ''
 
 """
   Convert from 62 symbol alphabet -> 16 symbols
@@ -147,22 +156,27 @@ class Connection:
       command= INVALID_COMMAND
       size= 0
       body= b''
-      recv_header= self._try_recv( HEADER_SIZE )
+      if self._partial_buffer:
+        recv_header= self._partial_buffer[ :HEADER_SIZE ]
+      else:
+        recv_header= self._try_recv( HEADER_SIZE )
       
       if len( recv_header )== HEADER_SIZE:
         if not self._partial_buffer:
           self._decoder.set_nonce( self._decoder_nonce )
           self._decoder_nonce+= 1
-
-        header= self._decoder.decrypt( recv_header )
+          header= self._decoder.decrypt( recv_header )
+          partial_size= 0
+        else:
+          partial_size= len( self._partial_buffer )- HEADER_SIZE
+        
         size= struct.unpack( ">H", header[ 1: ] )[ 0 ]
         command= header[ 0 ]
-        recv_body= self._try_recv( size )
-        if len( recv_body )== size:
+        recv_body= self._try_recv( size- partial_size )
+        if len( recv_body )+ partial_size== size:
           mac= self._try_recv( MAC_SIZE )
           if len( mac )== MAC_SIZE:
-            
-            body= self._decoder.decrypt( recv_body )
+            body= self._decoder.decrypt( recv_body )+ self._partial_buffer[ HEADER_SIZE: ]
             calculated_mac= self._decoder.finish( MAC_SIZE )
             if calculated_mac!= mac:
               raise Exception( 'RECV MAC not matching', calculated_mac, mac )
@@ -199,29 +213,31 @@ class Session:
                                            'client_nonce' :          bytes( [ int( random.random()* 0xFF ) for x in range( 0, 0x10 ) ] ),
                                            'padding':                bytes( [ 0x1E ] ),
                                            'feature_set':            keyexchange.FeatureSet( **{ 'autoupdate2': True } ) } )
+    request_data= request.SerializeToString()
     return self._connection.send_packet( b"\x00\x04", 
-                                         request.SerializeToString()  )
+                                         request_data  )
   
   def _processAPHelloResponse( self, init_client_packet ):
     prefix, size, init_server_packet= self._connection.recv_packet()
     response= keyexchange.APResponseMessage()
     response.ParseFromString( init_server_packet[ 4: ] )
+    
     remote_key= response.challenge.login_crypto_challenge.diffie_hellman.gs
     self._local_keys.generate_shared_secret(int.from_bytes(remote_key, 
                                                            byteorder='big'));
     mac_original= hmac.new( self._local_keys.shared_secret.to_bytes( KEY_LENGTH,
                                                                      byteorder='big' ), 
                             digestmod= hashlib.sha1 )
-    data= []                         
+    data= []
     for i in range( 1, 6 ):
       mac= mac_original.copy()
-      mac.update( init_client_packet+ init_server_packet+ bytes([i]) )
-      data+= mac.digest()
+      mac.update( init_client_packet+ init_server_packet+  bytes([i]) )
+      digest= mac.digest() 
+      data+= digest
       
     mac= hmac.new( bytes( data[ :0x14 ] ), 
                    digestmod= hashlib.sha1 )
     mac.update( init_client_packet+ init_server_packet )
-    
     return ( mac.digest(),
              bytes( data[ 0x14 : 0x34 ] ),
              bytes( data[ 0x34 : 0x54 ] ) )
@@ -262,7 +278,7 @@ class Session:
     if command== AUTH_SUCCESSFUL_COMMAND:
       auth_welcome= authentication.APWelcome()
       auth_welcome.ParseFromString( body )
-      return auth_welcome.reusable_auth_credentials
+      return auth_welcome.reusable_auth_credentials_type, auth_welcome.reusable_auth_credentials
     elif command== AUTH_DECLINED_COMMAND:
       raise Exception( 'AUTH DECLINED. Code: %02X' % command )
     
@@ -307,8 +323,8 @@ class MercuryManager( threading.Thread ):
   def _process_country_response( self, data ):
     self._country= data.decode("ascii")
 
-  def _process_audio_key( self, data ):
-    if len( data )>= 20:
+  def _process_audio_key( self, command, data ):
+    if len( data )>= 4:
       seq_id= int.from_bytes(data[ :4 ], 
                              byteorder='big')
       try:
@@ -318,15 +334,12 @@ class MercuryManager( threading.Thread ):
         callback= None
       
       if callback:
-        callback( data[ 4: ] )
+        callback( command== AUDIO_KEY_SUCCESS_RESPONSE, data[ 4: ] )
       else:
         print( 'Callback for key %d is not found' % seq_id )
     else:
       print( 'Wrong format of the key response', data )
   
-  def _process_audio_key_failure( self, data ):
-    print( 'Key cannot be retrieved', data )
-   
   def _parse_response( self, payload ):
     header_size= struct.unpack( ">H",  payload[ 13: 15 ] )[ 0 ]
     header= mercury.Header()
@@ -352,10 +365,8 @@ class MercuryManager( threading.Thread ):
           self._process04( payload )
         elif response_code== COUNTRY_CODE_RESPONSE:
           self._process_country_response( payload )
-        elif response_code== AUDIO_KEY_SUCCESS_RESPONSE:
-          self._process_audio_key( payload )
-        elif response_code== AUDIO_KEY_FAILURE_RESPONSE:
-          self._process_audio_key_failure( payload )
+        elif response_code in ( AUDIO_KEY_SUCCESS_RESPONSE, AUDIO_KEY_FAILURE_RESPONSE ):
+          self._process_audio_key( response_code, payload )
         elif response_code== AUDIO_CHUNK_SUCCESS_RESPONSE or \
              response_code== AUDIO_CHUNK_FAILURE_RESPONSE:
           self._audio_chunk_callback and self._audio_chunk_callback( success= ( response_code== AUDIO_CHUNK_SUCCESS_RESPONSE ), 
@@ -379,8 +390,6 @@ class MercuryManager( threading.Thread ):
           
         """
             0x4a => (), 
-            0x9 | 0xa => self.channel().dispatch(cmd, data),
-            0xd | 0xe => self.audio_key().dispatch(cmd, data),
             0xb2...0xb6 => self.mercury().dispatch(cmd, data),
         """
       except socket.timeout:
@@ -424,7 +433,6 @@ class MercuryManager( threading.Thread ):
             file_id.to_bytes( 20, byteorder='big' )+                               \
             sample_start.to_bytes( 4, byteorder='big' )+                           \
             sample_finish.to_bytes( 4, byteorder='big' )
-
     self._audio_chunk_callback= callback
     self._audio_chunk_sequence+= 1
     self._connection.send_packet( AUDIO_CHUNK_REQUEST_COMMAND, 
@@ -435,18 +443,23 @@ class Track:
   def __init__( self, mercury_manager, track_id ):
     self._mercury_manager= mercury_manager
     self._track_id= _toBase16( track_id )
+    print( "Track id in HEX:", hex( self._track_id ) )
     self._file_id= None
     self._audio_key= None
     self._track= metadata.Track()
     self._event= threading.Event()
 
-  def _audio_key_callback( self, payload ):
-    self._audio_key= int.from_bytes(payload[ :16 ], 
-                                    byteorder='big')
-    print( 'Key received %X' % self._audio_key )
+  def _audio_key_callback( self, success, payload ):
+    if success:
+      self._audio_key= int.from_bytes(payload[ :16 ], 
+                                      byteorder='big')
+      print( 'Key received 0x%X' % self._audio_key )
+    else:
+      print( 'Key cannot be processed', payload )
     self._event.set()
     
   def _track_info_callback( self, header, parts ):
+    open( 'track.dat', 'wb' ).write( parts[ 0 ] )
     self._track.ParseFromString( parts[ 0 ] )
     self._event.set()
   
@@ -468,22 +481,29 @@ class Track:
       self._event.set()
     
   def load( self, format ):
+    global ALBUM_GID,  \
+           ARTIST_GID 
     self._event.clear()
     self._mercury_manager.execute( REQUEST_TYPE.GET, 
                                    TRACK_PATH_TEMPLATE % hex( self._track_id )[ 2: ],
                                    self._track_info_callback )
     # Parse restrictions and alternatives
     self._event.wait()
+    # Get artist and album
+    ALBUM_GID= track._track.album.gid
+    ARTIST_GID= track._track.album.artist[ 0 ].gid
     restriction= track._track.restriction[ 0 ]
-    if self._mercury_manager.get_country() in restriction.countries_forbidden:
-      print( '!!Track ', self._track.name, 'is not allowed in', self._mercury_manager.get_country(), 'looking for alternatives' )
+    if self._mercury_manager.get_country() in restriction.countries_forbidden or  \
+       ( restriction.countries_allowed!= "" and self._mercury_manager.get_country() not in restriction.countries_allowed ):
+      print( '!!Track %s is not allowed in %s looking for alternatives' % ( self._track.name, self._mercury_manager.get_country() ) )
       # TODO: we should add alternatives seeking if track is not allowed in our country
-      alternative= track._track.alternative[ 0 ]
-      if self._mercury_manager.get_country() in alternative.restriction[ 0 ].countries_allowed:
-        # Get new guid and files
-        self._track_id= int.from_bytes( alternative.gid, 
-                                        byteorder='big' )
-        files= alternative.file
+      for alternative in track._track.alternative:
+        if self._mercury_manager.get_country() in alternative.restriction[ 0 ].countries_allowed:
+          # Get new guid and files
+          self._track_id= int.from_bytes( alternative.gid, 
+                                          byteorder='big' )
+          files= alternative.file
+          break
     else:
       files= self._track.file
 
@@ -493,6 +513,7 @@ class Track:
         self._file_id= int.from_bytes( file.file_id, 
                                        byteorder='big' )
         self._event.clear()
+        print( 'Requesting key for track %x file %x' % ( self._track_id, self._file_id ) )
         self._mercury_manager.request_audio_key( self._track_id, 
                                                  self._file_id,
                                                  self._audio_key_callback )
@@ -512,54 +533,152 @@ class Track:
     self._event.wait()
     return self._chunk_data
     
+# ----------------------------------- Album metadata and tracks ----------------------------------
+class Album:
+  def __init__( self, mercury_manager, album_id ):
+    self._mercury_manager= mercury_manager
+    self._album_id= int.from_bytes( album_id, 
+                                    byteorder='big' )
+    print( "Album id in HEX:", hex( self._album_id ) )
+    self._album= metadata.Album()
+    self._event= threading.Event()
+    self._event.clear()
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
+                                   ALBUM_PATH_TEMPLATE % hex( self._album_id )[ 2: ],
+                                   self._info_callback )
+    self._event.wait()
 
+  def _info_callback( self, header, parts ):
+    self._album.ParseFromString( parts[ 0 ] )
+    open( 'album.dat', 'wb' ).write( parts[ 0 ] )
+    self._event.set()
+
+# ----------------------------------- Artist metadata and tracks ----------------------------------
+class Artist:
+  def __init__( self, mercury_manager, artist_id ):
+    self._mercury_manager= mercury_manager
+    self._artist_id= int.from_bytes( artist_id, 
+                                    byteorder='big' )
+    print( "Artist id in HEX:", hex( self._artist_id ) )
+    self._artist= metadata.Artist()
+    self._event= threading.Event()
+    self._event.clear()
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
+                                   ARTIST_PATH_TEMPLATE % hex( self._artist_id )[ 2: ],
+                                   self._info_callback )
+    self._event.wait()
+
+  def _info_callback( self, header, parts ):
+    self._artist.ParseFromString( parts[ 0 ] )
+    open( 'artist.dat', 'wb' ).write( parts[ 0 ] )
+    self._event.set()
+
+# ----------------------------------- Playlists for user ----------------------------------
+class Playlists:
+  def __init__( self, mercury_manager, username ):
+    self._mercury_manager= mercury_manager
+    self._username= username
+    self._event= threading.Event()
+    self._event.clear()
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
+                                   PLAYLISTS_PATH_TEMPLATE % self._username,
+                                   self._info_callback )
+    self._event.wait()
+
+  def _info_callback( self, header, parts ):
+    self._playlists= spotify_playlist.SelectedListContent()
+    self._playlists.ParseFromString( parts[ 0 ] )
+    self._event.set()
+
+# ----------------------------------- Playlists for user ----------------------------------
+class Playlist:
+  def __init__( self, mercury_manager, playlist_id ):
+    self._mercury_manager= mercury_manager
+    self._playlist_id= playlist_id.replace( ':', '/' )
+    self._event= threading.Event()
+    self._event.clear()
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
+                                   PLAYLIST_CONTENTS_TEMPLATE % self._playlist_id,
+                                   self._info_callback )
+    self._event.wait()
+
+  def _info_callback( self, header, parts ):
+    self._playlist= spotify_playlist.ListDump()
+    self._playlist.ParseFromString( parts[ 0 ] )
+    self._event.set()
+    
 if __name__ == '__main__':
 
-  if len( sys.argv )!= 4:
-    print( 'Usage: spotify.py <username> <password> <track>' )
+  if len( sys.argv )!= 3:
+    print( 'Usage: spotify.py <username> <password>' )
   else:
     import signal
     manager= None
-    
+
     def signal_handler(signal, frame):
       if manager:
         manager.terminate()
     
     signal.signal(signal.SIGINT, signal_handler)
 
+    #_track= metadata.Track()
+    #_track.ParseFromString( open( 'track.dat', 'rb' ).read() )
+    #print( _track )
+    #sys.exit()
+    
+    # AUTHENTICATION_USER_PASS                  - using name/passwd
+    # AUTHENTICATION_STORED_SPOTIFY_CREDENTIALS - using reusable_token auth after username/passwd success
+    # AUTHENTICATION_SPOTIFY_TOKEN              - ????
     connection = Connection()
     session= Session().connect( connection )
     reusable_token= session.authenticate( sys.argv[ 1 ], 
                                           bytes( sys.argv[ 2 ], 'ascii' ), 
-                                          authentication.AUTHENTICATION_USER_PASS )
+                                          [ authentication.AUTHENTICATION_USER_PASS, authentication.AUTHENTICATION_STORED_SPOTIFY_CREDENTIALS ][ len( sys.argv[ 2 ] )> 30 ]  )
     print( 'AUTH successfull. Token: ', reusable_token )
     track= None
     manager= MercuryManager( connection )
     while not manager.is_terminated():
-      time.sleep(1)
-      if not track:
-        track= Track( manager, bytes( sys.argv[ 3 ], 'ascii' ) )
-        if track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) ):
-          print( 'Found file matching format %s track %s' % ( track._file_id, track._track_id ))
-          # Now load some audio data from track
-          start_time= time.time()
-          aes = pyaes.AESModeOfOperationCTR( track._audio_key.to_bytes( 16, byteorder='big' ), 
-                                             pyaes.Counter( int.from_bytes( AUDIO_AESIV, byteorder='big' ) ) )
-          f= open( sys.argv[ 3 ]+ '.ogg', 'wb' )
-          for i in range( 10000 ):
-            chunk_data= track.get_chunk( i )
-            if i== 0:
-              print( 'File chunk #%d received. Size %d. Header %s' % ( i, len( chunk_data ), track._chunk_header ) )
-            else:
-              print( 'File chunk #%d received. Size %d' % ( i, len( chunk_data ) ) )
-            
-            decrypted_chunk= aes.decrypt(chunk_data)
-            f.write( decrypted_chunk )
-            
-            if len( chunk_data )< AUDIO_CHUNK_SIZE:
-              print( 'Finished in %d secs' % ( time.time()- start_time ) )
-              f.close()
-              break
-        else:
-          print( 'Track with format %d was not found' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
-      
+      t= input( '>' )
+      tt= t.strip().split()
+      if len( tt ):
+        if tt[ 0 ]== 't':
+          track= Track( manager, bytes( tt[ 1 ], 'ascii' ) )
+          if not track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_320' ) ):
+            track= None
+        elif tt[ 0 ]== 's':
+          if track:
+            print( 'Found file matching selected format. fileId= %s' % ( hex(track._file_id), ))
+            # Now load some audio data from track
+            start_time= time.time()
+            aes = pyaes.AESModeOfOperationCTR( track._audio_key.to_bytes( 16, byteorder='big' ), 
+                                               pyaes.Counter( int.from_bytes( AUDIO_AESIV, byteorder='big' ) ) )
+            f= open( sys.argv[ 3 ]+ '.ogg', 'wb' )
+            for i in range( 10000 ):
+              chunk_data= track.get_chunk( i )
+              if i== 0:
+                print( 'File chunk #%d received. Size %d. Header %s' % ( i, len( chunk_data ), track._chunk_header ) )
+              else:
+                print( 'File chunk #%d received. Size %d' % ( i, len( chunk_data ) ) )
+              
+              decrypted_chunk= aes.decrypt(chunk_data)
+              f.write( decrypted_chunk )
+              
+              if len( chunk_data )< AUDIO_CHUNK_SIZE:
+                print( 'Finished in %d secs' % ( time.time()- start_time ) )
+                f.close()
+                break
+          else:
+            print( 'Track with format %d was not found or loaded' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
+        elif tt[ 0 ]== 'a':
+          album= Album( manager, ALBUM_GID )
+        elif tt[ 0 ]== 'r':
+          artist= Artist( manager, ARTIST_GID )
+        elif tt[ 0 ]== 'p':
+          playlists= Playlists( manager, sys.argv[ 1 ] )
+          print( playlists._playlists )
+        elif tt[ 0 ]== 'pp':
+          # playlist format: user:<user>:playlist:<playlist>
+          playlist= Playlist( manager, tt[ 1 ] )
+          print( playlist._playlist )
+        elif tt[ 0 ]== 'q':
+          manager.terminate()

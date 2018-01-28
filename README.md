@@ -8,7 +8,7 @@ Have fun !
 ## How to run
 1. You will need python35 at least
 
-2. Download and install DiffieHellman:
+2. Download and install DiffieHellman:  
    git clone http://www.github.com/chrisvoncsefalvay/diffiehellman  
    cd diffiehellman  
    python3 setup.py install  
