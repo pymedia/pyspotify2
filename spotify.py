@@ -60,12 +60,23 @@ AUDIO_CHUNK_SIZE=             0x20000
 
 AUDIO_AESIV=                  b'\x72\xe0\x67\xfb\xdd\xcb\xcf\x77\xeb\xe8\xbc\x64\x3f\x63\x0d\x93'
 BASE62_DIGITS=                b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-TRACK_PATH_TEMPLATE=          'hm://metadata/3/track/%s'  
+TRACK_PATH_TEMPLATE=          'hm://metadata/3/track/%s?alt=json'  
 ALBUM_PATH_TEMPLATE=          'hm://metadata/3/album/%s'  
 ARTIST_PATH_TEMPLATE=         'hm://metadata/3/artist/%s'
-PLAYLISTS_PATH_TEMPLATE=      'hm://playlist/user/%s/rootlist?from=0&length=100' 
+USER_PATH_TEMPLATE=           'hm://identity/v1/user/%s'
+PLAYLISTS_PATH_TEMPLATE=      'hm://playlist/user/%s/rootlist' 
 PLAYLIST_CONTENTS_TEMPLATE=   'hm://playlist/%s?from=0&length=100'
 
+AUTH_TOKEN_TEMPLATE=          'hm://keymaster/token/authenticated?client_id=b9a3bb6a53914439bad9057f68d87fe7&scope=user-library-read&scope=user-read-private&scope=user-library-modify&scope=playlist-read-private&scope=playlist-modify-public&scope=playlist-modify-private'
+"""
+            "user-read-private",
+            "user-library-read",
+            "user-library-modify",
+            "playlist-read-private",
+            "playlist-modify-public",
+            "playlist-modify-private"};
+
+"""
 ALBUM_GID=  ''
 ARTIST_GID= ''
 
@@ -278,6 +289,7 @@ class Session:
     if command== AUTH_SUCCESSFUL_COMMAND:
       auth_welcome= authentication.APWelcome()
       auth_welcome.ParseFromString( body )
+      print( auth_welcome )
       return auth_welcome.reusable_auth_credentials_type, auth_welcome.reusable_auth_credentials
     elif command== AUTH_DECLINED_COMMAND:
       raise Exception( 'AUTH DECLINED. Code: %02X' % command )
@@ -344,6 +356,7 @@ class MercuryManager( threading.Thread ):
     header_size= struct.unpack( ">H",  payload[ 13: 15 ] )[ 0 ]
     header= mercury.Header()
     header.ParseFromString( payload[ 15: 15+ header_size ] )
+    print( header )
     # Now go through all parts and separate them
     pos= 15+ header_size
     parts= []
@@ -579,6 +592,7 @@ class Playlists:
     self._mercury_manager= mercury_manager
     self._username= username
     self._event= threading.Event()
+    self._playlists= spotify_playlist.SelectedListContent()
     self._event.clear()
     self._mercury_manager.execute( REQUEST_TYPE.GET, 
                                    PLAYLISTS_PATH_TEMPLATE % self._username,
@@ -586,7 +600,6 @@ class Playlists:
     self._event.wait()
 
   def _info_callback( self, header, parts ):
-    self._playlists= spotify_playlist.SelectedListContent()
     self._playlists.ParseFromString( parts[ 0 ] )
     self._event.set()
 
@@ -596,6 +609,7 @@ class Playlist:
     self._mercury_manager= mercury_manager
     self._playlist_id= playlist_id.replace( ':', '/' )
     self._event= threading.Event()
+    self._playlist= spotify_playlist.ListDump()
     self._event.clear()
     self._mercury_manager.execute( REQUEST_TYPE.GET, 
                                    PLAYLIST_CONTENTS_TEMPLATE % self._playlist_id,
@@ -603,10 +617,41 @@ class Playlist:
     self._event.wait()
 
   def _info_callback( self, header, parts ):
-    self._playlist= spotify_playlist.ListDump()
     self._playlist.ParseFromString( parts[ 0 ] )
     self._event.set()
+   
+
+# ----------------------------------- User info ----------------------------------
+class User:
+  def __init__( self, mercury_manager, user ):
+    self._mercury_manager= mercury_manager
+    self._event= threading.Event()
+    self._event.clear()
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
+                                   USER_PATH_TEMPLATE % user,
+                                   self._info_callback )
+    self._event.wait()
+
+  def _info_callback( self, header, parts ):
+    print( parts[ 0 ] )
+    self._event.set()
+   
     
+# ----------------------------------- Auth token for user wen API ----------------------------------
+class AuthToken:
+  def __init__( self, mercury_manager ):
+    self._mercury_manager= mercury_manager
+    self._event= threading.Event()
+    self._event.clear()
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
+                                   AUTH_TOKEN_TEMPLATE,
+                                   self._info_callback )
+    self._event.wait()
+
+  def _info_callback( self, header, parts ):
+    open( 'auth_data.dat', 'wb' ).write( parts[ 0 ] )
+    self._event.set()
+
 if __name__ == '__main__':
 
   if len( sys.argv )!= 3:
@@ -645,6 +690,8 @@ if __name__ == '__main__':
           track= Track( manager, bytes( tt[ 1 ], 'ascii' ) )
           if not track.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_320' ) ):
             track= None
+          else:
+            print( track._track )
         elif tt[ 0 ]== 's':
           if track:
             print( 'Found file matching selected format. fileId= %s' % ( hex(track._file_id), ))
@@ -671,11 +718,16 @@ if __name__ == '__main__':
             print( 'Track with format %d was not found or loaded' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
         elif tt[ 0 ]== 'a':
           album= Album( manager, ALBUM_GID )
+          print( album._album )
         elif tt[ 0 ]== 'r':
           artist= Artist( manager, ARTIST_GID )
         elif tt[ 0 ]== 'p':
           playlists= Playlists( manager, sys.argv[ 1 ] )
           print( playlists._playlists )
+        elif tt[ 0 ]== 'auth':
+          authToken= AuthToken( manager )
+        elif tt[ 0 ]== 'user':
+          User( manager, sys.argv[ 1 ] )
         elif tt[ 0 ]== 'pp':
           # playlist format: user:<user>:playlist:<playlist>
           playlist= Playlist( manager, tt[ 1 ] )
