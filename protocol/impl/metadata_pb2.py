@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='metadata.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0emetadata.proto\"3\n\tTopTracks\x12\x0f\n\x07\x63ountry\x18\x01 \x01(\t\x12\x15\n\x05track\x18\x02 \x03(\x0b\x32\x06.Track\"F\n\x0e\x41\x63tivityPeriod\x12\x12\n\nstart_year\x18\x01 \x01(\x11\x12\x10\n\x08\x65nd_year\x18\x02 \x01(\x11\x12\x0e\n\x06\x64\x65\x63\x61\x64\x65\x18\x03 \x01(\x11\"\x81\x04\n\x06\x41rtist\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x12\n\npopularity\x18\x03 \x01(\x11\x12\x1d\n\ttop_track\x18\x04 \x03(\x0b\x32\n.TopTracks\x12 \n\x0b\x61lbum_group\x18\x05 \x03(\x0b\x32\x0b.AlbumGroup\x12!\n\x0csingle_group\x18\x06 \x03(\x0b\x32\x0b.AlbumGroup\x12&\n\x11\x63ompilation_group\x18\x07 \x03(\x0b\x32\x0b.AlbumGroup\x12%\n\x10\x61ppears_on_group\x18\x08 \x03(\x0b\x32\x0b.AlbumGroup\x12\r\n\x05genre\x18\t \x03(\t\x12 \n\x0b\x65xternal_id\x18\n \x03(\x0b\x32\x0b.ExternalId\x12\x18\n\x08portrait\x18\x0b \x03(\x0b\x32\x06.Image\x12\x1d\n\tbiography\x18\x0c \x03(\x0b\x32\n.Biography\x12(\n\x0f\x61\x63tivity_period\x18\r \x03(\x0b\x32\x0f.ActivityPeriod\x12!\n\x0brestriction\x18\x0e \x03(\x0b\x32\x0c.Restriction\x12\x18\n\x07related\x18\x0f \x03(\x0b\x32\x07.Artist\x12\x1f\n\x17is_portrait_album_cover\x18\x10 \x01(\x08\x12#\n\x0eportrait_group\x18\x11 \x01(\x0b\x32\x0b.ImageGroup\"#\n\nAlbumGroup\x12\x15\n\x05\x61lbum\x18\x01 \x03(\x0b\x32\x06.Album\"0\n\x04\x44\x61te\x12\x0c\n\x04year\x18\x01 \x01(\x11\x12\r\n\x05month\x18\x02 \x01(\x11\x12\x0b\n\x03\x64\x61y\x18\x03 \x01(\x11\"\xc9\x03\n\x05\x41lbum\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x17\n\x06\x61rtist\x18\x03 \x03(\x0b\x32\x07.Artist\x12\x18\n\x03typ\x18\x04 \x01(\x0e\x32\x0b.Album.Type\x12\r\n\x05label\x18\x05 \x01(\t\x12\x13\n\x04\x64\x61te\x18\x06 \x01(\x0b\x32\x05.Date\x12\x12\n\npopularity\x18\x07 \x01(\x11\x12\r\n\x05genre\x18\x08 \x03(\t\x12\x15\n\x05\x63over\x18\t \x03(\x0b\x32\x06.Image\x12 \n\x0b\x65xternal_id\x18\n \x03(\x0b\x32\x0b.ExternalId\x12\x13\n\x04\x64isc\x18\x0b \x03(\x0b\x32\x05.Disc\x12\x0e\n\x06review\x18\x0c \x03(\t\x12\x1d\n\tcopyright\x18\r \x03(\x0b\x32\n.Copyright\x12!\n\x0brestriction\x18\x0e \x03(\x0b\x32\x0c.Restriction\x12\x17\n\x07related\x18\x0f \x03(\x0b\x32\x06.Album\x12 \n\x0bsale_period\x18\x10 \x03(\x0b\x32\x0b.SalePeriod\x12 \n\x0b\x63over_group\x18\x11 \x01(\x0b\x32\x0b.ImageGroup\".\n\x04Type\x12\t\n\x05\x41LBUM\x10\x01\x12\n\n\x06SINGLE\x10\x02\x12\x0f\n\x0b\x43OMPILATION\x10\x03\"\xea\x02\n\x05Track\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\x05\x61lbum\x18\x03 \x01(\x0b\x32\x06.Album\x12\x17\n\x06\x61rtist\x18\x04 \x03(\x0b\x32\x07.Artist\x12\x0e\n\x06number\x18\x05 \x01(\x11\x12\x13\n\x0b\x64isc_number\x18\x06 \x01(\x11\x12\x10\n\x08\x64uration\x18\x07 \x01(\x11\x12\x12\n\npopularity\x18\x08 \x01(\x11\x12\x10\n\x08\x65xplicit\x18\t \x01(\x08\x12 \n\x0b\x65xternal_id\x18\n \x03(\x0b\x32\x0b.ExternalId\x12!\n\x0brestriction\x18\x0b \x03(\x0b\x32\x0c.Restriction\x12\x18\n\x04\x66ile\x18\x0c \x03(\x0b\x32\n.AudioFile\x12\x1b\n\x0b\x61lternative\x18\r \x03(\x0b\x32\x06.Track\x12 \n\x0bsale_period\x18\x0e \x03(\x0b\x32\x0b.SalePeriod\x12\x1b\n\x07preview\x18\x0f \x03(\x0b\x32\n.AudioFile\"\x89\x01\n\x05Image\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x0c\x12\x19\n\x04size\x18\x02 \x01(\x0e\x32\x0b.Image.Size\x12\r\n\x05width\x18\x03 \x01(\x11\x12\x0e\n\x06height\x18\x04 \x01(\x11\"5\n\x04Size\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05SMALL\x10\x01\x12\t\n\x05LARGE\x10\x02\x12\n\n\x06XLARGE\x10\x03\"#\n\nImageGroup\x12\x15\n\x05image\x18\x01 \x03(\x0b\x32\x06.Image\"X\n\tBiography\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x18\n\x08portrait\x18\x02 \x03(\x0b\x32\x06.Image\x12#\n\x0eportrait_group\x18\x03 \x03(\x0b\x32\x0b.ImageGroup\";\n\x04\x44isc\x12\x0e\n\x06number\x18\x01 \x01(\x11\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\x05track\x18\x03 \x03(\x0b\x32\x06.Track\"M\n\tCopyright\x12\x1c\n\x03typ\x18\x01 \x01(\x0e\x32\x0f.Copyright.Type\x12\x0c\n\x04text\x18\x02 \x01(\t\"\x14\n\x04Type\x12\x05\n\x01P\x10\x00\x12\x05\n\x01\x43\x10\x01\"\x93\x01\n\x0bRestriction\x12\x19\n\x11\x63ountries_allowed\x18\x02 \x01(\t\x12\x1b\n\x13\x63ountries_forbidden\x18\x03 \x01(\t\x12\x1e\n\x03typ\x18\x04 \x01(\x0e\x32\x11.Restriction.Type\x12\x15\n\rcatalogue_str\x18\x05 \x03(\t\"\x15\n\x04Type\x12\r\n\tSTREAMING\x10\x00\"Y\n\nSalePeriod\x12!\n\x0brestriction\x18\x01 \x03(\x0b\x32\x0c.Restriction\x12\x14\n\x05start\x18\x02 \x01(\x0b\x32\x05.Date\x12\x12\n\x03\x65nd\x18\x03 \x01(\x0b\x32\x05.Date\"%\n\nExternalId\x12\x0b\n\x03typ\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\"\xcf\x01\n\tAudioFile\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x0c\x12!\n\x06\x66ormat\x18\x02 \x01(\x0e\x32\x11.AudioFile.Format\"\x8d\x01\n\x06\x46ormat\x12\x11\n\rOGG_VORBIS_96\x10\x00\x12\x12\n\x0eOGG_VORBIS_160\x10\x01\x12\x12\n\x0eOGG_VORBIS_320\x10\x02\x12\x0b\n\x07MP3_256\x10\x03\x12\x0b\n\x07MP3_320\x10\x04\x12\x0b\n\x07MP3_160\x10\x05\x12\n\n\x06MP3_96\x10\x06\x12\t\n\x05OTHER\x10\x07\x12\n\n\x06OTHER2\x10\x08')
+  serialized_pb=_b('\n\x0emetadata.proto\"\xc8\x04\n\x06\x41rtist\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x12\n\npopularity\x18\x03 \x01(\x11\x12\x1d\n\ttop_track\x18\x04 \x03(\x0b\x32\n.TopTracks\x12 \n\x0b\x61lbum_group\x18\x05 \x03(\x0b\x32\x0b.AlbumGroup\x12!\n\x0csingle_group\x18\x06 \x03(\x0b\x32\x0b.AlbumGroup\x12&\n\x11\x63ompilation_group\x18\x07 \x03(\x0b\x32\x0b.AlbumGroup\x12%\n\x10\x61ppears_on_group\x18\x08 \x03(\x0b\x32\x0b.AlbumGroup\x12\r\n\x05genre\x18\t \x03(\t\x12 \n\x0b\x65xternal_id\x18\n \x03(\x0b\x32\x0b.ExternalId\x12\x18\n\x08portrait\x18\x0b \x03(\x0b\x32\x06.Image\x12\x1d\n\tbiography\x18\x0c \x03(\x0b\x32\n.Biography\x12(\n\x0f\x61\x63tivity_period\x18\r \x03(\x0b\x32\x0f.ActivityPeriod\x12!\n\x0brestriction\x18\x0e \x03(\x0b\x32\x0c.Restriction\x12\x18\n\x07related\x18\x0f \x03(\x0b\x32\x07.Artist\x12\x1f\n\x17is_portrait_album_cover\x18\x10 \x01(\x08\x12#\n\x0eportrait_group\x18\x11 \x01(\x0b\x32\x0b.ImageGroup\x12 \n\x0bsale_period\x18\x12 \x03(\x0b\x32\x0b.SalePeriod\x12#\n\x0c\x61vailability\x18\x14 \x03(\x0b\x32\r.Availability\"\xd4\x04\n\x05\x41lbum\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x17\n\x06\x61rtist\x18\x03 \x03(\x0b\x32\x07.Artist\x12\x19\n\x04type\x18\x04 \x01(\x0e\x32\x0b.Album.Type\x12\r\n\x05label\x18\x05 \x01(\t\x12\x13\n\x04\x64\x61te\x18\x06 \x01(\x0b\x32\x05.Date\x12\x12\n\npopularity\x18\x07 \x01(\x11\x12\r\n\x05genre\x18\x08 \x03(\t\x12\x15\n\x05\x63over\x18\t \x03(\x0b\x32\x06.Image\x12 \n\x0b\x65xternal_id\x18\n \x03(\x0b\x32\x0b.ExternalId\x12\x13\n\x04\x64isc\x18\x0b \x03(\x0b\x32\x05.Disc\x12\x0e\n\x06review\x18\x0c \x03(\t\x12\x1d\n\tcopyright\x18\r \x03(\x0b\x32\n.Copyright\x12!\n\x0brestriction\x18\x0e \x03(\x0b\x32\x0c.Restriction\x12\x17\n\x07related\x18\x0f \x03(\x0b\x32\x06.Album\x12 \n\x0bsale_period\x18\x10 \x03(\x0b\x32\x0b.SalePeriod\x12 \n\x0b\x63over_group\x18\x11 \x01(\x0b\x32\x0b.ImageGroup\x12\x16\n\x0eoriginal_title\x18\x12 \x01(\t\x12\x15\n\rversion_title\x18\x13 \x01(\t\x12\x10\n\x08type_str\x18\x14 \x01(\t\x12#\n\x0c\x61vailability\x18\x17 \x03(\x0b\x32\r.Availability\"R\n\x04Type\x12\t\n\x05\x41LBUM\x10\x01\x12\n\n\x06SINGLE\x10\x02\x12\x0f\n\x0b\x43OMPILATION\x10\x03\x12\x06\n\x02\x45P\x10\x04\x12\r\n\tAUDIOBOOK\x10\x05\x12\x0b\n\x07PODCAST\x10\x06\"\xef\x03\n\x05Track\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\x05\x61lbum\x18\x03 \x01(\x0b\x32\x06.Album\x12\x17\n\x06\x61rtist\x18\x04 \x03(\x0b\x32\x07.Artist\x12\x0e\n\x06number\x18\x05 \x01(\x11\x12\x13\n\x0b\x64isc_number\x18\x06 \x01(\x11\x12\x10\n\x08\x64uration\x18\x07 \x01(\x11\x12\x12\n\npopularity\x18\x08 \x01(\x11\x12\x10\n\x08\x65xplicit\x18\t \x01(\x08\x12 \n\x0b\x65xternal_id\x18\n \x03(\x0b\x32\x0b.ExternalId\x12!\n\x0brestriction\x18\x0b \x03(\x0b\x32\x0c.Restriction\x12\x18\n\x04\x66ile\x18\x0c \x03(\x0b\x32\n.AudioFile\x12\x1b\n\x0b\x61lternative\x18\r \x03(\x0b\x32\x06.Track\x12 \n\x0bsale_period\x18\x0e \x03(\x0b\x32\x0b.SalePeriod\x12\x1b\n\x07preview\x18\x0f \x03(\x0b\x32\n.AudioFile\x12\x0c\n\x04tags\x18\x10 \x03(\t\x12\x1f\n\x17\x65\x61rliest_live_timestamp\x18\x11 \x01(\x03\x12\x12\n\nhas_lyrics\x18\x12 \x01(\x08\x12#\n\x0c\x61vailability\x18\x13 \x03(\x0b\x32\r.Availability\x12\x1b\n\x08licensor\x18\x15 \x01(\x0b\x32\t.Licensor\"\x89\x04\n\x04Show\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18@ \x01(\t\x12!\n\x15\x64\x65precated_popularity\x18\x41 \x01(\x11\x42\x02\x18\x01\x12\x11\n\tpublisher\x18\x42 \x01(\t\x12\x10\n\x08language\x18\x43 \x01(\t\x12\x10\n\x08\x65xplicit\x18\x44 \x01(\x08\x12 \n\x0b\x63over_image\x18\x45 \x01(\x0b\x32\x0b.ImageGroup\x12\x19\n\x07\x65pisode\x18\x46 \x03(\x0b\x32\x08.Episode\x12\x1d\n\tcopyright\x18G \x03(\x0b\x32\n.Copyright\x12!\n\x0brestriction\x18H \x03(\x0b\x32\x0c.Restriction\x12\x0f\n\x07keyword\x18I \x03(\t\x12#\n\nmedia_type\x18J \x01(\x0e\x32\x0f.Show.MediaType\x12\x31\n\x11\x63onsumption_order\x18K \x01(\x0e\x32\x16.Show.ConsumptionOrder\x12#\n\x0c\x61vailability\x18N \x03(\x0b\x32\r.Availability\",\n\tMediaType\x12\t\n\x05MIXED\x10\x00\x12\t\n\x05\x41UDIO\x10\x01\x12\t\n\x05VIDEO\x10\x02\"<\n\x10\x43onsumptionOrder\x12\x0e\n\nSEQUENTIAL\x10\x01\x12\x0c\n\x08\x45PISODIC\x10\x02\x12\n\n\x06RECENT\x10\x03\"\xa7\x04\n\x07\x45pisode\x12\x0b\n\x03gid\x18\x01 \x01(\x0c\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08\x64uration\x18\x07 \x01(\x11\x12\x19\n\x05\x61udio\x18\x0c \x03(\x0b\x32\n.AudioFile\x12\x13\n\x0b\x64\x65scription\x18@ \x01(\t\x12\x0e\n\x06number\x18\x41 \x01(\x11\x12\x1b\n\x0cpublish_time\x18\x42 \x01(\x0b\x32\x05.Date\x12!\n\x15\x64\x65precated_popularity\x18\x43 \x01(\x11\x42\x02\x18\x01\x12 \n\x0b\x63over_image\x18\x44 \x01(\x0b\x32\x0b.ImageGroup\x12\x10\n\x08language\x18\x45 \x01(\t\x12\x10\n\x08\x65xplicit\x18\x46 \x01(\x08\x12\x13\n\x04show\x18G \x01(\x0b\x32\x05.Show\x12\x19\n\x05video\x18H \x03(\x0b\x32\n.VideoFile\x12!\n\rvideo_preview\x18I \x03(\x0b\x32\n.VideoFile\x12!\n\raudio_preview\x18J \x03(\x0b\x32\n.AudioFile\x12!\n\x0brestriction\x18K \x03(\x0b\x32\x0c.Restriction\x12!\n\x0c\x66reeze_frame\x18L \x01(\x0b\x32\x0b.ImageGroup\x12\x0f\n\x07keyword\x18M \x03(\t\x12!\n\x19\x61llow_background_playback\x18Q \x01(\x08\x12#\n\x0c\x61vailability\x18R \x03(\x0b\x32\r.Availability\x12\x14\n\x0c\x65xternal_url\x18S \x01(\t\"\x18\n\x08Licensor\x12\x0c\n\x04uuid\x18\x01 \x01(\x0c\"3\n\tTopTracks\x12\x0f\n\x07\x63ountry\x18\x01 \x01(\t\x12\x15\n\x05track\x18\x02 \x03(\x0b\x32\x06.Track\"F\n\x0e\x41\x63tivityPeriod\x12\x12\n\nstart_year\x18\x01 \x01(\x11\x12\x10\n\x08\x65nd_year\x18\x02 \x01(\x11\x12\x0e\n\x06\x64\x65\x63\x61\x64\x65\x18\x03 \x01(\x11\"#\n\nAlbumGroup\x12\x15\n\x05\x61lbum\x18\x01 \x03(\x0b\x32\x06.Album\"N\n\x04\x44\x61te\x12\x0c\n\x04year\x18\x01 \x01(\x11\x12\r\n\x05month\x18\x02 \x01(\x11\x12\x0b\n\x03\x64\x61y\x18\x03 \x01(\x11\x12\x0c\n\x04hour\x18\x04 \x01(\x11\x12\x0e\n\x06minute\x18\x05 \x01(\x11\"\x89\x01\n\x05Image\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x0c\x12\x19\n\x04size\x18\x02 \x01(\x0e\x32\x0b.Image.Size\x12\r\n\x05width\x18\x03 \x01(\x11\x12\x0e\n\x06height\x18\x04 \x01(\x11\"5\n\x04Size\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\t\n\x05SMALL\x10\x01\x12\t\n\x05LARGE\x10\x02\x12\n\n\x06XLARGE\x10\x03\"#\n\nImageGroup\x12\x15\n\x05image\x18\x01 \x03(\x0b\x32\x06.Image\"X\n\tBiography\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x18\n\x08portrait\x18\x02 \x03(\x0b\x32\x06.Image\x12#\n\x0eportrait_group\x18\x03 \x03(\x0b\x32\x0b.ImageGroup\";\n\x04\x44isc\x12\x0e\n\x06number\x18\x01 \x01(\x11\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\x05track\x18\x03 \x03(\x0b\x32\x06.Track\"N\n\tCopyright\x12\x1d\n\x04type\x18\x01 \x01(\x0e\x32\x0f.Copyright.Type\x12\x0c\n\x04text\x18\x02 \x01(\t\"\x14\n\x04Type\x12\x05\n\x01P\x10\x00\x12\x05\n\x01\x43\x10\x01\"\xde\x01\n\x0bRestriction\x12)\n\tcatalogue\x18\x01 \x03(\x0e\x32\x16.Restriction.Catalogue\x12\x1f\n\x04type\x18\x04 \x01(\x0e\x32\x11.Restriction.Type\x12\x15\n\rcatalogue_str\x18\x05 \x03(\t\"U\n\tCatalogue\x12\x06\n\x02\x41\x44\x10\x00\x12\x10\n\x0cSUBSCRIPTION\x10\x01\x12\x11\n\rCATALOGUE_ALL\x10\x02\x12\x0b\n\x07SHUFFLE\x10\x03\x12\x0e\n\nCOMMERCIAL\x10\x04\"\x15\n\x04Type\x12\r\n\tSTREAMING\x10\x00\";\n\x0c\x41vailability\x12\x15\n\rcatalogue_str\x18\x01 \x03(\t\x12\x14\n\x05start\x18\x02 \x01(\x0b\x32\x05.Date\"Y\n\nSalePeriod\x12!\n\x0brestriction\x18\x01 \x03(\x0b\x32\x0c.Restriction\x12\x14\n\x05start\x18\x02 \x01(\x0b\x32\x05.Date\x12\x12\n\x03\x65nd\x18\x03 \x01(\x0b\x32\x05.Date\"&\n\nExternalId\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\"\xe1\x01\n\tAudioFile\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x0c\x12!\n\x06\x66ormat\x18\x02 \x01(\x0e\x32\x11.AudioFile.Format\"\x9f\x01\n\x06\x46ormat\x12\x11\n\rOGG_VORBIS_96\x10\x00\x12\x12\n\x0eOGG_VORBIS_160\x10\x01\x12\x12\n\x0eOGG_VORBIS_320\x10\x02\x12\x0b\n\x07MP3_256\x10\x03\x12\x0b\n\x07MP3_320\x10\x04\x12\x0b\n\x07MP3_160\x10\x05\x12\n\n\x06MP3_96\x10\x06\x12\x0f\n\x0bMP3_160_ENC\x10\x07\x12\n\n\x06\x41\x41\x43_24\x10\x08\x12\n\n\x06\x41\x41\x43_48\x10\t\"\x1c\n\tVideoFile\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x0c\x42(\n\x1a\x63om.spotify.metadata.protoB\x08MetadataH\x02')
 )
 
 
@@ -42,13 +42,77 @@ _ALBUM_TYPE = _descriptor.EnumDescriptor(
       name='COMPILATION', index=2, number=3,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EP', index=3, number=4,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='AUDIOBOOK', index=4, number=5,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PODCAST', index=5, number=6,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=1158,
-  serialized_end=1204,
+  serialized_start=1120,
+  serialized_end=1202,
 )
 _sym_db.RegisterEnumDescriptor(_ALBUM_TYPE)
+
+_SHOW_MEDIATYPE = _descriptor.EnumDescriptor(
+  name='MediaType',
+  full_name='Show.MediaType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='MIXED', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='AUDIO', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='VIDEO', index=2, number=2,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=2118,
+  serialized_end=2162,
+)
+_sym_db.RegisterEnumDescriptor(_SHOW_MEDIATYPE)
+
+_SHOW_CONSUMPTIONORDER = _descriptor.EnumDescriptor(
+  name='ConsumptionOrder',
+  full_name='Show.ConsumptionOrder',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SEQUENTIAL', index=0, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EPISODIC', index=1, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='RECENT', index=2, number=3,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=2164,
+  serialized_end=2224,
+)
+_sym_db.RegisterEnumDescriptor(_SHOW_CONSUMPTIONORDER)
 
 _IMAGE_SIZE = _descriptor.EnumDescriptor(
   name='Size',
@@ -75,8 +139,8 @@ _IMAGE_SIZE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1656,
-  serialized_end=1709,
+  serialized_start=3133,
+  serialized_end=3186,
 )
 _sym_db.RegisterEnumDescriptor(_IMAGE_SIZE)
 
@@ -97,10 +161,44 @@ _COPYRIGHT_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1956,
-  serialized_end=1976,
+  serialized_start=3434,
+  serialized_end=3454,
 )
 _sym_db.RegisterEnumDescriptor(_COPYRIGHT_TYPE)
+
+_RESTRICTION_CATALOGUE = _descriptor.EnumDescriptor(
+  name='Catalogue',
+  full_name='Restriction.Catalogue',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='AD', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SUBSCRIPTION', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CATALOGUE_ALL', index=2, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SHUFFLE', index=3, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='COMMERCIAL', index=4, number=4,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=3571,
+  serialized_end=3656,
+)
+_sym_db.RegisterEnumDescriptor(_RESTRICTION_CATALOGUE)
 
 _RESTRICTION_TYPE = _descriptor.EnumDescriptor(
   name='Type',
@@ -115,8 +213,8 @@ _RESTRICTION_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2105,
-  serialized_end=2126,
+  serialized_start=3658,
+  serialized_end=3679,
 )
 _sym_db.RegisterEnumDescriptor(_RESTRICTION_TYPE)
 
@@ -155,103 +253,24 @@ _AUDIOFILE_FORMAT = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='OTHER', index=7, number=7,
+      name='MP3_160_ENC', index=7, number=7,
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='OTHER2', index=8, number=8,
+      name='AAC_24', index=8, number=8,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='AAC_48', index=9, number=9,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=2325,
-  serialized_end=2466,
+  serialized_start=3940,
+  serialized_end=4099,
 )
 _sym_db.RegisterEnumDescriptor(_AUDIOFILE_FORMAT)
-
-
-_TOPTRACKS = _descriptor.Descriptor(
-  name='TopTracks',
-  full_name='TopTracks',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='country', full_name='TopTracks.country', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='track', full_name='TopTracks.track', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=18,
-  serialized_end=69,
-)
-
-
-_ACTIVITYPERIOD = _descriptor.Descriptor(
-  name='ActivityPeriod',
-  full_name='ActivityPeriod',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='start_year', full_name='ActivityPeriod.start_year', index=0,
-      number=1, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='end_year', full_name='ActivityPeriod.end_year', index=1,
-      number=2, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='decade', full_name='ActivityPeriod.decade', index=2,
-      number=3, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=71,
-  serialized_end=141,
-)
 
 
 _ARTIST = _descriptor.Descriptor(
@@ -380,33 +399,16 @@ _ARTIST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=144,
-  serialized_end=657,
-)
-
-
-_ALBUMGROUP = _descriptor.Descriptor(
-  name='AlbumGroup',
-  full_name='AlbumGroup',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
     _descriptor.FieldDescriptor(
-      name='album', full_name='AlbumGroup.album', index=0,
-      number=1, type=11, cpp_type=10, label=3,
+      name='sale_period', full_name='Artist.sale_period', index=17,
+      number=18, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='availability', full_name='Artist.availability', index=18,
+      number=20, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -423,53 +425,8 @@ _ALBUMGROUP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=659,
-  serialized_end=694,
-)
-
-
-_DATE = _descriptor.Descriptor(
-  name='Date',
-  full_name='Date',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='year', full_name='Date.year', index=0,
-      number=1, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='month', full_name='Date.month', index=1,
-      number=2, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='day', full_name='Date.day', index=2,
-      number=3, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=696,
-  serialized_end=744,
+  serialized_start=19,
+  serialized_end=603,
 )
 
 
@@ -502,7 +459,7 @@ _ALBUM = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='typ', full_name='Album.typ', index=3,
+      name='type', full_name='Album.type', index=3,
       number=4, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
@@ -599,6 +556,34 @@ _ALBUM = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='original_title', full_name='Album.original_title', index=17,
+      number=18, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='version_title', full_name='Album.version_title', index=18,
+      number=19, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='type_str', full_name='Album.type_str', index=19,
+      number=20, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='availability', full_name='Album.availability', index=20,
+      number=23, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -612,8 +597,8 @@ _ALBUM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=747,
-  serialized_end=1204,
+  serialized_start=606,
+  serialized_end=1202,
 )
 
 
@@ -729,6 +714,41 @@ _TRACK = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='tags', full_name='Track.tags', index=15,
+      number=16, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='earliest_live_timestamp', full_name='Track.earliest_live_timestamp', index=16,
+      number=17, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='has_lyrics', full_name='Track.has_lyrics', index=17,
+      number=18, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='availability', full_name='Track.availability', index=18,
+      number=19, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='licensor', full_name='Track.licensor', index=19,
+      number=21, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -741,8 +761,514 @@ _TRACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1207,
-  serialized_end=1569,
+  serialized_start=1205,
+  serialized_end=1700,
+)
+
+
+_SHOW = _descriptor.Descriptor(
+  name='Show',
+  full_name='Show',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='gid', full_name='Show.gid', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='Show.name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='description', full_name='Show.description', index=2,
+      number=64, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='deprecated_popularity', full_name='Show.deprecated_popularity', index=3,
+      number=65, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\030\001'))),
+    _descriptor.FieldDescriptor(
+      name='publisher', full_name='Show.publisher', index=4,
+      number=66, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='language', full_name='Show.language', index=5,
+      number=67, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='explicit', full_name='Show.explicit', index=6,
+      number=68, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='cover_image', full_name='Show.cover_image', index=7,
+      number=69, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='episode', full_name='Show.episode', index=8,
+      number=70, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='copyright', full_name='Show.copyright', index=9,
+      number=71, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='restriction', full_name='Show.restriction', index=10,
+      number=72, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='keyword', full_name='Show.keyword', index=11,
+      number=73, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='media_type', full_name='Show.media_type', index=12,
+      number=74, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='consumption_order', full_name='Show.consumption_order', index=13,
+      number=75, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='availability', full_name='Show.availability', index=14,
+      number=78, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _SHOW_MEDIATYPE,
+    _SHOW_CONSUMPTIONORDER,
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1703,
+  serialized_end=2224,
+)
+
+
+_EPISODE = _descriptor.Descriptor(
+  name='Episode',
+  full_name='Episode',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='gid', full_name='Episode.gid', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='Episode.name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='duration', full_name='Episode.duration', index=2,
+      number=7, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='audio', full_name='Episode.audio', index=3,
+      number=12, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='description', full_name='Episode.description', index=4,
+      number=64, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='number', full_name='Episode.number', index=5,
+      number=65, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='publish_time', full_name='Episode.publish_time', index=6,
+      number=66, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='deprecated_popularity', full_name='Episode.deprecated_popularity', index=7,
+      number=67, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\030\001'))),
+    _descriptor.FieldDescriptor(
+      name='cover_image', full_name='Episode.cover_image', index=8,
+      number=68, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='language', full_name='Episode.language', index=9,
+      number=69, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='explicit', full_name='Episode.explicit', index=10,
+      number=70, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='show', full_name='Episode.show', index=11,
+      number=71, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='video', full_name='Episode.video', index=12,
+      number=72, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='video_preview', full_name='Episode.video_preview', index=13,
+      number=73, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='audio_preview', full_name='Episode.audio_preview', index=14,
+      number=74, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='restriction', full_name='Episode.restriction', index=15,
+      number=75, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='freeze_frame', full_name='Episode.freeze_frame', index=16,
+      number=76, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='keyword', full_name='Episode.keyword', index=17,
+      number=77, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='allow_background_playback', full_name='Episode.allow_background_playback', index=18,
+      number=81, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='availability', full_name='Episode.availability', index=19,
+      number=82, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='external_url', full_name='Episode.external_url', index=20,
+      number=83, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2227,
+  serialized_end=2778,
+)
+
+
+_LICENSOR = _descriptor.Descriptor(
+  name='Licensor',
+  full_name='Licensor',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='uuid', full_name='Licensor.uuid', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2780,
+  serialized_end=2804,
+)
+
+
+_TOPTRACKS = _descriptor.Descriptor(
+  name='TopTracks',
+  full_name='TopTracks',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='country', full_name='TopTracks.country', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='track', full_name='TopTracks.track', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2806,
+  serialized_end=2857,
+)
+
+
+_ACTIVITYPERIOD = _descriptor.Descriptor(
+  name='ActivityPeriod',
+  full_name='ActivityPeriod',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='start_year', full_name='ActivityPeriod.start_year', index=0,
+      number=1, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='end_year', full_name='ActivityPeriod.end_year', index=1,
+      number=2, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='decade', full_name='ActivityPeriod.decade', index=2,
+      number=3, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2859,
+  serialized_end=2929,
+)
+
+
+_ALBUMGROUP = _descriptor.Descriptor(
+  name='AlbumGroup',
+  full_name='AlbumGroup',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='album', full_name='AlbumGroup.album', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2931,
+  serialized_end=2966,
+)
+
+
+_DATE = _descriptor.Descriptor(
+  name='Date',
+  full_name='Date',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='year', full_name='Date.year', index=0,
+      number=1, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='month', full_name='Date.month', index=1,
+      number=2, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='day', full_name='Date.day', index=2,
+      number=3, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='hour', full_name='Date.hour', index=3,
+      number=4, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='minute', full_name='Date.minute', index=4,
+      number=5, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2968,
+  serialized_end=3046,
 )
 
 
@@ -794,8 +1320,8 @@ _IMAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1572,
-  serialized_end=1709,
+  serialized_start=3049,
+  serialized_end=3186,
 )
 
 
@@ -825,8 +1351,8 @@ _IMAGEGROUP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1711,
-  serialized_end=1746,
+  serialized_start=3188,
+  serialized_end=3223,
 )
 
 
@@ -870,8 +1396,8 @@ _BIOGRAPHY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1748,
-  serialized_end=1836,
+  serialized_start=3225,
+  serialized_end=3313,
 )
 
 
@@ -915,8 +1441,8 @@ _DISC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1838,
-  serialized_end=1897,
+  serialized_start=3315,
+  serialized_end=3374,
 )
 
 
@@ -928,7 +1454,7 @@ _COPYRIGHT = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='typ', full_name='Copyright.typ', index=0,
+      name='type', full_name='Copyright.type', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -954,8 +1480,8 @@ _COPYRIGHT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1899,
-  serialized_end=1976,
+  serialized_start=3376,
+  serialized_end=3454,
 )
 
 
@@ -967,28 +1493,21 @@ _RESTRICTION = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='countries_allowed', full_name='Restriction.countries_allowed', index=0,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='catalogue', full_name='Restriction.catalogue', index=0,
+      number=1, type=14, cpp_type=8, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='countries_forbidden', full_name='Restriction.countries_forbidden', index=1,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='typ', full_name='Restriction.typ', index=2,
+      name='type', full_name='Restriction.type', index=1,
       number=4, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='catalogue_str', full_name='Restriction.catalogue_str', index=3,
+      name='catalogue_str', full_name='Restriction.catalogue_str', index=2,
       number=5, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -999,6 +1518,7 @@ _RESTRICTION = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
+    _RESTRICTION_CATALOGUE,
     _RESTRICTION_TYPE,
   ],
   options=None,
@@ -1007,8 +1527,46 @@ _RESTRICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1979,
-  serialized_end=2126,
+  serialized_start=3457,
+  serialized_end=3679,
+)
+
+
+_AVAILABILITY = _descriptor.Descriptor(
+  name='Availability',
+  full_name='Availability',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='catalogue_str', full_name='Availability.catalogue_str', index=0,
+      number=1, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='start', full_name='Availability.start', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3681,
+  serialized_end=3740,
 )
 
 
@@ -1052,8 +1610,8 @@ _SALEPERIOD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2128,
-  serialized_end=2217,
+  serialized_start=3742,
+  serialized_end=3831,
 )
 
 
@@ -1065,7 +1623,7 @@ _EXTERNALID = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='typ', full_name='ExternalId.typ', index=0,
+      name='type', full_name='ExternalId.type', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -1090,8 +1648,8 @@ _EXTERNALID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2219,
-  serialized_end=2256,
+  serialized_start=3833,
+  serialized_end=3871,
 )
 
 
@@ -1129,11 +1687,41 @@ _AUDIOFILE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2259,
-  serialized_end=2466,
+  serialized_start=3874,
+  serialized_end=4099,
 )
 
-_TOPTRACKS.fields_by_name['track'].message_type = _TRACK
+
+_VIDEOFILE = _descriptor.Descriptor(
+  name='VideoFile',
+  full_name='VideoFile',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='file_id', full_name='VideoFile.file_id', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=4101,
+  serialized_end=4129,
+)
+
 _ARTIST.fields_by_name['top_track'].message_type = _TOPTRACKS
 _ARTIST.fields_by_name['album_group'].message_type = _ALBUMGROUP
 _ARTIST.fields_by_name['single_group'].message_type = _ALBUMGROUP
@@ -1146,9 +1734,10 @@ _ARTIST.fields_by_name['activity_period'].message_type = _ACTIVITYPERIOD
 _ARTIST.fields_by_name['restriction'].message_type = _RESTRICTION
 _ARTIST.fields_by_name['related'].message_type = _ARTIST
 _ARTIST.fields_by_name['portrait_group'].message_type = _IMAGEGROUP
-_ALBUMGROUP.fields_by_name['album'].message_type = _ALBUM
+_ARTIST.fields_by_name['sale_period'].message_type = _SALEPERIOD
+_ARTIST.fields_by_name['availability'].message_type = _AVAILABILITY
 _ALBUM.fields_by_name['artist'].message_type = _ARTIST
-_ALBUM.fields_by_name['typ'].enum_type = _ALBUM_TYPE
+_ALBUM.fields_by_name['type'].enum_type = _ALBUM_TYPE
 _ALBUM.fields_by_name['date'].message_type = _DATE
 _ALBUM.fields_by_name['cover'].message_type = _IMAGE
 _ALBUM.fields_by_name['external_id'].message_type = _EXTERNALID
@@ -1158,6 +1747,7 @@ _ALBUM.fields_by_name['restriction'].message_type = _RESTRICTION
 _ALBUM.fields_by_name['related'].message_type = _ALBUM
 _ALBUM.fields_by_name['sale_period'].message_type = _SALEPERIOD
 _ALBUM.fields_by_name['cover_group'].message_type = _IMAGEGROUP
+_ALBUM.fields_by_name['availability'].message_type = _AVAILABILITY
 _ALBUM_TYPE.containing_type = _ALBUM
 _TRACK.fields_by_name['album'].message_type = _ALBUM
 _TRACK.fields_by_name['artist'].message_type = _ARTIST
@@ -1167,38 +1757,111 @@ _TRACK.fields_by_name['file'].message_type = _AUDIOFILE
 _TRACK.fields_by_name['alternative'].message_type = _TRACK
 _TRACK.fields_by_name['sale_period'].message_type = _SALEPERIOD
 _TRACK.fields_by_name['preview'].message_type = _AUDIOFILE
+_TRACK.fields_by_name['availability'].message_type = _AVAILABILITY
+_TRACK.fields_by_name['licensor'].message_type = _LICENSOR
+_SHOW.fields_by_name['cover_image'].message_type = _IMAGEGROUP
+_SHOW.fields_by_name['episode'].message_type = _EPISODE
+_SHOW.fields_by_name['copyright'].message_type = _COPYRIGHT
+_SHOW.fields_by_name['restriction'].message_type = _RESTRICTION
+_SHOW.fields_by_name['media_type'].enum_type = _SHOW_MEDIATYPE
+_SHOW.fields_by_name['consumption_order'].enum_type = _SHOW_CONSUMPTIONORDER
+_SHOW.fields_by_name['availability'].message_type = _AVAILABILITY
+_SHOW_MEDIATYPE.containing_type = _SHOW
+_SHOW_CONSUMPTIONORDER.containing_type = _SHOW
+_EPISODE.fields_by_name['audio'].message_type = _AUDIOFILE
+_EPISODE.fields_by_name['publish_time'].message_type = _DATE
+_EPISODE.fields_by_name['cover_image'].message_type = _IMAGEGROUP
+_EPISODE.fields_by_name['show'].message_type = _SHOW
+_EPISODE.fields_by_name['video'].message_type = _VIDEOFILE
+_EPISODE.fields_by_name['video_preview'].message_type = _VIDEOFILE
+_EPISODE.fields_by_name['audio_preview'].message_type = _AUDIOFILE
+_EPISODE.fields_by_name['restriction'].message_type = _RESTRICTION
+_EPISODE.fields_by_name['freeze_frame'].message_type = _IMAGEGROUP
+_EPISODE.fields_by_name['availability'].message_type = _AVAILABILITY
+_TOPTRACKS.fields_by_name['track'].message_type = _TRACK
+_ALBUMGROUP.fields_by_name['album'].message_type = _ALBUM
 _IMAGE.fields_by_name['size'].enum_type = _IMAGE_SIZE
 _IMAGE_SIZE.containing_type = _IMAGE
 _IMAGEGROUP.fields_by_name['image'].message_type = _IMAGE
 _BIOGRAPHY.fields_by_name['portrait'].message_type = _IMAGE
 _BIOGRAPHY.fields_by_name['portrait_group'].message_type = _IMAGEGROUP
 _DISC.fields_by_name['track'].message_type = _TRACK
-_COPYRIGHT.fields_by_name['typ'].enum_type = _COPYRIGHT_TYPE
+_COPYRIGHT.fields_by_name['type'].enum_type = _COPYRIGHT_TYPE
 _COPYRIGHT_TYPE.containing_type = _COPYRIGHT
-_RESTRICTION.fields_by_name['typ'].enum_type = _RESTRICTION_TYPE
+_RESTRICTION.fields_by_name['catalogue'].enum_type = _RESTRICTION_CATALOGUE
+_RESTRICTION.fields_by_name['type'].enum_type = _RESTRICTION_TYPE
+_RESTRICTION_CATALOGUE.containing_type = _RESTRICTION
 _RESTRICTION_TYPE.containing_type = _RESTRICTION
+_AVAILABILITY.fields_by_name['start'].message_type = _DATE
 _SALEPERIOD.fields_by_name['restriction'].message_type = _RESTRICTION
 _SALEPERIOD.fields_by_name['start'].message_type = _DATE
 _SALEPERIOD.fields_by_name['end'].message_type = _DATE
 _AUDIOFILE.fields_by_name['format'].enum_type = _AUDIOFILE_FORMAT
 _AUDIOFILE_FORMAT.containing_type = _AUDIOFILE
-DESCRIPTOR.message_types_by_name['TopTracks'] = _TOPTRACKS
-DESCRIPTOR.message_types_by_name['ActivityPeriod'] = _ACTIVITYPERIOD
 DESCRIPTOR.message_types_by_name['Artist'] = _ARTIST
-DESCRIPTOR.message_types_by_name['AlbumGroup'] = _ALBUMGROUP
-DESCRIPTOR.message_types_by_name['Date'] = _DATE
 DESCRIPTOR.message_types_by_name['Album'] = _ALBUM
 DESCRIPTOR.message_types_by_name['Track'] = _TRACK
+DESCRIPTOR.message_types_by_name['Show'] = _SHOW
+DESCRIPTOR.message_types_by_name['Episode'] = _EPISODE
+DESCRIPTOR.message_types_by_name['Licensor'] = _LICENSOR
+DESCRIPTOR.message_types_by_name['TopTracks'] = _TOPTRACKS
+DESCRIPTOR.message_types_by_name['ActivityPeriod'] = _ACTIVITYPERIOD
+DESCRIPTOR.message_types_by_name['AlbumGroup'] = _ALBUMGROUP
+DESCRIPTOR.message_types_by_name['Date'] = _DATE
 DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
 DESCRIPTOR.message_types_by_name['ImageGroup'] = _IMAGEGROUP
 DESCRIPTOR.message_types_by_name['Biography'] = _BIOGRAPHY
 DESCRIPTOR.message_types_by_name['Disc'] = _DISC
 DESCRIPTOR.message_types_by_name['Copyright'] = _COPYRIGHT
 DESCRIPTOR.message_types_by_name['Restriction'] = _RESTRICTION
+DESCRIPTOR.message_types_by_name['Availability'] = _AVAILABILITY
 DESCRIPTOR.message_types_by_name['SalePeriod'] = _SALEPERIOD
 DESCRIPTOR.message_types_by_name['ExternalId'] = _EXTERNALID
 DESCRIPTOR.message_types_by_name['AudioFile'] = _AUDIOFILE
+DESCRIPTOR.message_types_by_name['VideoFile'] = _VIDEOFILE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+Artist = _reflection.GeneratedProtocolMessageType('Artist', (_message.Message,), dict(
+  DESCRIPTOR = _ARTIST,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:Artist)
+  ))
+_sym_db.RegisterMessage(Artist)
+
+Album = _reflection.GeneratedProtocolMessageType('Album', (_message.Message,), dict(
+  DESCRIPTOR = _ALBUM,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:Album)
+  ))
+_sym_db.RegisterMessage(Album)
+
+Track = _reflection.GeneratedProtocolMessageType('Track', (_message.Message,), dict(
+  DESCRIPTOR = _TRACK,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:Track)
+  ))
+_sym_db.RegisterMessage(Track)
+
+Show = _reflection.GeneratedProtocolMessageType('Show', (_message.Message,), dict(
+  DESCRIPTOR = _SHOW,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:Show)
+  ))
+_sym_db.RegisterMessage(Show)
+
+Episode = _reflection.GeneratedProtocolMessageType('Episode', (_message.Message,), dict(
+  DESCRIPTOR = _EPISODE,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:Episode)
+  ))
+_sym_db.RegisterMessage(Episode)
+
+Licensor = _reflection.GeneratedProtocolMessageType('Licensor', (_message.Message,), dict(
+  DESCRIPTOR = _LICENSOR,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:Licensor)
+  ))
+_sym_db.RegisterMessage(Licensor)
 
 TopTracks = _reflection.GeneratedProtocolMessageType('TopTracks', (_message.Message,), dict(
   DESCRIPTOR = _TOPTRACKS,
@@ -1214,13 +1877,6 @@ ActivityPeriod = _reflection.GeneratedProtocolMessageType('ActivityPeriod', (_me
   ))
 _sym_db.RegisterMessage(ActivityPeriod)
 
-Artist = _reflection.GeneratedProtocolMessageType('Artist', (_message.Message,), dict(
-  DESCRIPTOR = _ARTIST,
-  __module__ = 'metadata_pb2'
-  # @@protoc_insertion_point(class_scope:Artist)
-  ))
-_sym_db.RegisterMessage(Artist)
-
 AlbumGroup = _reflection.GeneratedProtocolMessageType('AlbumGroup', (_message.Message,), dict(
   DESCRIPTOR = _ALBUMGROUP,
   __module__ = 'metadata_pb2'
@@ -1234,20 +1890,6 @@ Date = _reflection.GeneratedProtocolMessageType('Date', (_message.Message,), dic
   # @@protoc_insertion_point(class_scope:Date)
   ))
 _sym_db.RegisterMessage(Date)
-
-Album = _reflection.GeneratedProtocolMessageType('Album', (_message.Message,), dict(
-  DESCRIPTOR = _ALBUM,
-  __module__ = 'metadata_pb2'
-  # @@protoc_insertion_point(class_scope:Album)
-  ))
-_sym_db.RegisterMessage(Album)
-
-Track = _reflection.GeneratedProtocolMessageType('Track', (_message.Message,), dict(
-  DESCRIPTOR = _TRACK,
-  __module__ = 'metadata_pb2'
-  # @@protoc_insertion_point(class_scope:Track)
-  ))
-_sym_db.RegisterMessage(Track)
 
 Image = _reflection.GeneratedProtocolMessageType('Image', (_message.Message,), dict(
   DESCRIPTOR = _IMAGE,
@@ -1291,6 +1933,13 @@ Restriction = _reflection.GeneratedProtocolMessageType('Restriction', (_message.
   ))
 _sym_db.RegisterMessage(Restriction)
 
+Availability = _reflection.GeneratedProtocolMessageType('Availability', (_message.Message,), dict(
+  DESCRIPTOR = _AVAILABILITY,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:Availability)
+  ))
+_sym_db.RegisterMessage(Availability)
+
 SalePeriod = _reflection.GeneratedProtocolMessageType('SalePeriod', (_message.Message,), dict(
   DESCRIPTOR = _SALEPERIOD,
   __module__ = 'metadata_pb2'
@@ -1312,5 +1961,18 @@ AudioFile = _reflection.GeneratedProtocolMessageType('AudioFile', (_message.Mess
   ))
 _sym_db.RegisterMessage(AudioFile)
 
+VideoFile = _reflection.GeneratedProtocolMessageType('VideoFile', (_message.Message,), dict(
+  DESCRIPTOR = _VIDEOFILE,
+  __module__ = 'metadata_pb2'
+  # @@protoc_insertion_point(class_scope:VideoFile)
+  ))
+_sym_db.RegisterMessage(VideoFile)
 
+
+DESCRIPTOR.has_options = True
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\032com.spotify.metadata.protoB\010MetadataH\002'))
+_SHOW.fields_by_name['deprecated_popularity'].has_options = True
+_SHOW.fields_by_name['deprecated_popularity']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\030\001'))
+_EPISODE.fields_by_name['deprecated_popularity'].has_options = True
+_EPISODE.fields_by_name['deprecated_popularity']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\030\001'))
 # @@protoc_insertion_point(module_scope)

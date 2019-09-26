@@ -33,7 +33,7 @@ except:
   raise Exception( "PROTO stubs were not found or have been corrupted. Please regenerate from .proto files using process_proto.py" ) 
 
 KEY_LENGTH=               96
-SPOTIFY_AP_ADDRESS=       ( 'guc3-accesspoint-b-cz1w.ap.spotify.com', 80 )
+SPOTIFY_AP_ADDRESS=       ( 'gew1-accesspoint-a-4ksb.ap.spotify.com', 4070 )
 SPOTIFY_API_VERSION=      0x10800000000
 INFORMATION_STRING=       "pyspotify2"
 DEVICE_ID=                "452198fd329622876e14907634264e6f332e5423"
@@ -60,12 +60,13 @@ AUDIO_CHUNK_SIZE=             0x20000
 
 AUDIO_AESIV=                  b'\x72\xe0\x67\xfb\xdd\xcb\xcf\x77\xeb\xe8\xbc\x64\x3f\x63\x0d\x93'
 BASE62_DIGITS=                b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-TRACK_PATH_TEMPLATE=          'hm://metadata/3/track/%s?alt=json'  
+TRACK_PATH_TEMPLATE=          'hm://metadata/3/track/%s'  
 ALBUM_PATH_TEMPLATE=          'hm://metadata/3/album/%s'  
 ARTIST_PATH_TEMPLATE=         'hm://metadata/3/artist/%s'
 USER_PATH_TEMPLATE=           'hm://identity/v1/user/%s'
 PLAYLISTS_PATH_TEMPLATE=      'hm://playlist/user/%s/rootlist' 
 PLAYLIST_CONTENTS_TEMPLATE=   'hm://playlist/%s?from=0&length=100'
+EPISODE_PATH_TEMPLATE=        'hm://metadata/4/episode/%s'
 
 AUTH_TOKEN_TEMPLATE=          'hm://keymaster/token/authenticated?client_id=b9a3bb6a53914439bad9057f68d87fe7&scope=user-library-read&scope=user-read-private&scope=user-library-modify&scope=playlist-read-private&scope=playlist-modify-public&scope=playlist-modify-private'
 """
@@ -453,9 +454,10 @@ class MercuryManager( threading.Thread ):
   
 # ----------------------------------- Track metadata and stream ----------------------------------
 class Track:
-  def __init__( self, mercury_manager, track_id ):
+  def __init__( self, mercury_manager, track ):
     self._mercury_manager= mercury_manager
-    self._track_id= _toBase16( track_id )
+    self.track= str( track, 'ascii' )
+    self._track_id= _toBase16( track )
     print( "Track id in HEX:", hex( self._track_id ) )
     self._file_id= None
     self._audio_key= None
@@ -506,19 +508,7 @@ class Track:
     ALBUM_GID= track._track.album.gid
     ARTIST_GID= track._track.album.artist[ 0 ].gid
     restriction= track._track.restriction[ 0 ]
-    if self._mercury_manager.get_country() in restriction.countries_forbidden or  \
-       ( restriction.countries_allowed!= "" and self._mercury_manager.get_country() not in restriction.countries_allowed ):
-      print( '!!Track %s is not allowed in %s looking for alternatives' % ( self._track.name, self._mercury_manager.get_country() ) )
-      # TODO: we should add alternatives seeking if track is not allowed in our country
-      for alternative in track._track.alternative:
-        if self._mercury_manager.get_country() in alternative.restriction[ 0 ].countries_allowed:
-          # Get new guid and files
-          self._track_id= int.from_bytes( alternative.gid, 
-                                          byteorder='big' )
-          files= alternative.file
-          break
-    else:
-      files= self._track.file
+    files= self._track.file
 
     # Scan through all files and match the format desired
     for file in files:
@@ -546,6 +536,42 @@ class Track:
     self._event.wait()
     return self._chunk_data
     
+# ----------------------------------- Podcast ----------------------------------
+class Episode( Track ):
+  def __init__( self, mercury_manager, episode ):
+    super( Episode, self ).__init__( mercury_manager, episode )
+    self._episode= metadata.Episode()
+    self.episode= str( episode, 'ascii' )
+    
+  def _episode_info_callback( self, header, parts ):
+    open( 'episode.dat', 'wb' ).write( parts[ 0 ] )
+    self._episode.ParseFromString( parts[ 0 ] )
+    self._event.set()
+
+  def load( self, format ):
+    self._event.clear()
+    self._mercury_manager.execute( REQUEST_TYPE.GET, 
+                                   EPISODE_PATH_TEMPLATE % hex( self._track_id )[ 2: ].lower(),
+                                   self._episode_info_callback )
+    # Parse restrictions and alternatives
+    self._event.wait()
+    files= self._episode.audio
+    
+    # Scan through all files and match the format desired
+    for file in files:
+      if file.format== format:
+        self._file_id= int.from_bytes( file.file_id, 
+                                       byteorder='big' )
+        self._event.clear()
+        print( 'Requesting key for track %x file %x' % ( self._track_id, self._file_id ) )
+        self._mercury_manager.request_audio_key( self._track_id, 
+                                                 self._file_id,
+                                                 self._audio_key_callback )
+        self._event.wait()
+        return True
+        
+    return False
+  
 # ----------------------------------- Album metadata and tracks ----------------------------------
 class Album:
   def __init__( self, mercury_manager, album_id ):
@@ -681,6 +707,7 @@ if __name__ == '__main__':
                                           [ authentication.AUTHENTICATION_USER_PASS, authentication.AUTHENTICATION_STORED_SPOTIFY_CREDENTIALS ][ len( sys.argv[ 2 ] )> 30 ]  )
     print( 'AUTH successfull. Token: ', reusable_token )
     track= None
+    episode= None
     manager= MercuryManager( connection )
     while not manager.is_terminated():
       t= input( '>' )
@@ -699,7 +726,7 @@ if __name__ == '__main__':
             start_time= time.time()
             aes = pyaes.AESModeOfOperationCTR( track._audio_key.to_bytes( 16, byteorder='big' ), 
                                                pyaes.Counter( int.from_bytes( AUDIO_AESIV, byteorder='big' ) ) )
-            f= open( sys.argv[ 3 ]+ '.ogg', 'wb' )
+            f= open( track.track+ '.ogg', 'wb' )
             for i in range( 10000 ):
               chunk_data= track.get_chunk( i )
               if i== 0:
@@ -710,6 +737,28 @@ if __name__ == '__main__':
               decrypted_chunk= aes.decrypt(chunk_data)
               f.write( decrypted_chunk )
               
+              if len( chunk_data )< AUDIO_CHUNK_SIZE:
+                print( 'Finished in %d secs' % ( time.time()- start_time ) )
+                f.close()
+                break
+          else:
+            print( 'Track with format %d was not found or loaded' % metadata.AudioFile.Format.Value( 'OGG_VORBIS_160' ) )
+        elif tt[ 0 ]== 'e':
+          episode= Episode( manager, bytes( tt[ 1 ], 'ascii' ) )
+          if not episode.load( metadata.AudioFile.Format.Value( 'OGG_VORBIS_96' ) ):
+            track= None
+          else:
+            print( episode._episode )
+        elif tt[ 0 ]== 'se':
+          if episode:
+            print( 'Found file matching selected format. fileId= %s' % ( hex(episode._file_id), ))
+            # Now load some audio data from track
+            start_time= time.time()
+            f= open( '%s_episode.ogg' % episode.episode, 'wb' )
+            for i in range( 10000 ):
+              chunk_data= episode.get_chunk( i )
+              print( 'File chunk #%d received. Size %d' % ( i, len( chunk_data ) ) )
+              f.write( chunk_data )
               if len( chunk_data )< AUDIO_CHUNK_SIZE:
                 print( 'Finished in %d secs' % ( time.time()- start_time ) )
                 f.close()
